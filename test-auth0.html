@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auth0 SDK Minimal Test</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; }
+        #status { font-weight: bold; }
+        .success { color: green; }
+        .error { color: red; }
+    </style>
+</head>
+<body>
+
+    <h1>Auth0 SDK Initialization Test</h1>
+    <p>Checking if the Auth0 SPA SDK loads and defines `createAuth0Client`.</p>
+    <p>Status: <span id="status">Checking...</span></p>
+    <hr>
+    <h2>Console Output Expected:</h2>
+    <ol>
+        <li>"Minimal test script running."</li>
+        <li>"Checking type of createAuth0Client: [type]" (Should be 'function')</li>
+        <li>"createAuth0Client function FOUND. Attempting initialization..." (If type is function)</li>
+        <li>"SUCCESS: Auth0 client initialized!" OR "ERROR initializing Auth0: [message]"</li>
+        <li>OR "ERROR: createAuth0Client is UNDEFINED." (If type is undefined)</li>
+    </ol>
+
+    <!-- 1. Load the Auth0 SDK using defer -->
+    <script defer src="https://cdn.auth0.com/js/auth0-spa-js/2.1/auth0-spa-js.production.js"></script>
+
+    <!-- 2. Run our minimal test script ALSO using defer -->
+    <script defer>
+      // Wrap in an async IIFE (Immediately Invoked Function Expression) to use await
+      (async () => {
+        const statusEl = document.getElementById('status');
+        console.log("Minimal test script running."); // Log that our script started
+
+        // Log the type RIGHT before attempting to use it
+        console.log(`Checking type of createAuth0Client: ${typeof createAuth0Client}`);
+
+        // Check if the function is defined
+        if (typeof createAuth0Client === 'function') {
+          statusEl.textContent = "createAuth0Client function FOUND. Attempting initialization...";
+          statusEl.className = ""; // Reset color
+          console.log("createAuth0Client function FOUND. Attempting initialization...");
+
+          // Try to initialize the client
+          try {
+            // Use the exact same configuration as your main app
+            const auth0Client = await createAuth0Client({
+              domain: 'eh-immigration.jp.auth0.com', // Your specific domain
+              clientId: 'GyTGD7qnwsNkXiXmxVTdVLfJMUlwdAND', // Your specific client ID
+              authorizationParams: {
+                redirect_uri: window.location.origin // Essential for redirect flow
+              }
+            });
+
+            // If initialization succeeds
+            statusEl.textContent = "SUCCESS: Auth0 client initialized!";
+            statusEl.className = "success";
+            console.log("SUCCESS: Auth0 client initialized!", auth0Client);
+
+          } catch (e) {
+            // If initialization fails (e.g., bad domain/client ID)
+            statusEl.textContent = `ERROR initializing Auth0: ${e.message}`;
+            statusEl.className = "error";
+            console.error("ERROR initializing Auth0:", e);
+          }
+
+        } else {
+          // If the function doesn't even exist
+          statusEl.textContent = "ERROR: createAuth0Client is UNDEFINED.";
+          statusEl.className = "error";
+          console.error("ERROR: createAuth0Client is UNDEFINED. The SDK script likely failed to execute correctly.");
+        }
+      })(); // Immediately invoke the async function
+    </script>
+
+</body>
+</html>
