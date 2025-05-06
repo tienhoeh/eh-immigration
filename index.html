@@ -5,18 +5,65 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>E&H Immigration - Applicant's Questionnaire</title>
     <link rel="stylesheet" href="style.css">
+    <!-- Basic Styling for Loading State -->
+    <style>
+        /* Start hidden while loading auth status */
+        .loading main#form-container,
+        .loading nav#side-nav {
+            visibility: hidden;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
+        .loading #auth-loading { display: block; } /* Show loading text */
+
+        /* Hide loading text when done */
+        body:not(.loading) #auth-loading { display: none; }
+
+        /* Loading text style */
+        #auth-loading {
+            display: none; /* Hidden by default, shown by .loading */
+            text-align: center;
+            padding: 50px;
+            font-size: 1.2em;
+            color: #555;
+        }
+        /* Logged-in user display */
+        #user-profile {
+            display: inline-block;
+            margin-left: 15px;
+            font-size: 0.9em;
+            color: #eee; /* Adjust color to fit header */
+        }
+        #user-profile span { margin-right: 10px; }
+        header #auth-actions button { vertical-align: middle; } /* Align buttons nicely */
+         /* Ensure form container takes up space even when hidden for layout purposes */
+         main#form-container { min-height: 80vh; }
+
+    </style>
 </head>
-<body>
+<body class="loading"> <!-- Add loading class initially -->
     <header class="header">
-        <!-- You can add the E&H logo here -->
+        <!-- Optional Logo -->
         <!-- <img src="logo.png" alt="E&H Immigration Logo" style="height: 50px;"> -->
         <h1>Applicant's Questionnaire</h1>
         <p>To be completed by the main applicant. Please fill all fields or enter 'NA' if not applicable.</p>
-        <!-- Netlify Identity Login/Signup Button Area -->
-        <div data-netlify-identity-button style="margin-top: 10px;"></div>
+        <!-- Auth0 Login/Logout Buttons Area -->
+        <div id="auth-actions" style="margin-top: 10px;">
+            <!-- Login button shown initially -->
+            <button id="btn-login" class="button submit-button">Log In / Sign Up</button>
+            <!-- User Profile section shown when logged in -->
+            <div id="user-profile" style="display: none;">
+                <span id="user-email"></span>
+                <button id="btn-logout" class="button remove-item-button">Log Out</button>
+            </div>
+        </div>
     </header>
 
+    <!-- Loading Indicator -->
+    <div id="auth-loading">Loading Application & Authentication...</div>
+
     <div class="container">
+        <!-- Side Navigation (Initially hidden by body.loading) -->
         <nav id="side-nav" class="side-nav">
             <h3>Sections</h3>
             <ul>
@@ -32,114 +79,45 @@
                 <li><a href="#section-prev-children">Children (Previous Marriage)</a></li>
                 <li><a href="#section-review">Review & Submit</a></li>
             </ul>
-            <button type="button" id="save-progress" class="button save-button">Save Draft</button>
+            <!-- Save Button disabled initially -->
+            <button type="button" id="save-progress" class="button save-button" disabled>Save Draft</button>
             <p id="save-status" class="save-status"></p>
         </nav>
 
-        <!-- Form container initially hidden, shown only after login -->
-        <main id="form-container" class="form-container hidden">
-            <!-- Netlify Form Handling: data-netlify attribute and hidden input -->
+        <!-- Form container (Initially hidden by body.loading) -->
+        <main id="form-container" class="form-container">
+            <!-- Netlify Form Handling STILL needed for submission -->
             <form name="immigration-questionnaire" method="POST" data-netlify="true" netlify-honeypot="bot-field">
                 <input type="hidden" name="form-name" value="immigration-questionnaire">
                 <!-- Honeypot field for spam prevention -->
-                <p class="hidden" style="visibility: hidden; height: 0; margin: 0; padding: 0;">
-                    <label>Don’t fill this out if you’re human: <input name="bot-field"></label>
+                <p class="hidden" style="position: absolute; left: -5000px;" aria-hidden="true">
+                    <label>Don’t fill this out if you’re human: <input name="bot-field" tabindex="-1"></label>
                 </p>
 
                 <!-- === Section 1: Applicant Details === -->
                 <section id="section-applicant-details" class="form-section">
                     <h2>Main Applicant Details</h2>
                     <div class="form-grid">
-                        <div class="form-group">
-                            <label for="applicant-name">Full name as per passport *</label>
-                            <input type="text" id="applicant-name" name="applicant_name" required placeholder="Enter full name or NA">
-                        </div>
-                        <div class="form-group">
-                            <label for="applicant-race-religion">Race & Religion *</label>
-                            <input type="text" id="applicant-race-religion" name="applicant_race_religion" required placeholder="e.g., Chinese / Buddhist or NA">
-                        </div>
-                        <div class="form-group">
-                            <label for="applicant-current-status">Current Immigration Status in Singapore *</label>
-                            <input type="text" id="applicant-current-status" name="applicant_current_status" required placeholder="e.g., Employment Pass, Dependant's Pass, NA">
-                        </div>
-                        <div class="form-group">
-                            <label for="applicant-marital-status">Marital Status *</label>
-                            <select id="applicant-marital-status" name="applicant_marital_status" required>
-                                <option value="">-- Select --</option>
-                                <option value="Single">Single</option>
-                                <option value="Married">Married</option>
-                                <option value="Divorced">Divorced</option>
-                                <option value="Widowed">Widowed</option>
-                                <option value="Separated">Separated</option>
-                                <option value="NA">NA</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="applicant-prev-status">Previous Immigration Status in Singapore *</label>
-                            <input type="text" id="applicant-prev-status" name="applicant_prev_status" required placeholder="Enter status or NA">
-                        </div>
-                        <div class="form-group">
-                            <label for="applicant-foreign-id">Foreign ID Number *</label>
-                            <input type="text" id="applicant-foreign-id" name="applicant_foreign_id" required placeholder="Enter ID or NA">
-                        </div>
-                        <div class="form-group">
-                            <label for="applicant-foreign-id-country">Foreign ID Issuing Country *</label>
-                            <input type="text" id="applicant-foreign-id-country" name="applicant_foreign_id_country" required placeholder="Enter country or NA">
-                        </div>
-                         <div class="form-group">
-                            <label for="applicant-alias">Alias (If any) *</label>
-                            <input type="text" id="applicant-alias" name="applicant_alias" required placeholder="Enter alias or NA">
-                        </div>
-                        <div class="form-group full-width">
-                            <label for="applicant-present-whereabouts">Present Whereabouts (Full Address) *</label>
-                            <textarea id="applicant-present-whereabouts" name="applicant_present_whereabouts" rows="3" required placeholder="Enter full address or NA"></textarea>
-                        </div>
-                         <div class="form-group">
-                            <label for="applicant-nationality">Nationality *</label>
-                            <input type="text" id="applicant-nationality" name="applicant_nationality" required placeholder="Enter nationality or NA">
-                        </div>
-                         <div class="form-group full-width">
-                            <label for="applicant-nationality-address">Address in Country of Nationality *</label>
-                            <textarea id="applicant-nationality-address" name="applicant_nationality_address" rows="3" required placeholder="Enter address or NA"></textarea>
-                        </div>
-                         <div class="form-group">
-                            <label for="applicant-dob">Date of Birth *</label>
-                            <input type="date" id="applicant-dob" name="applicant_dob" required>
-                        </div>
-                         <div class="form-group full-width">
-                            <label for="applicant-sg-address">Address in Singapore *</label>
-                            <textarea id="applicant-sg-address" name="applicant_sg_address" rows="3" required placeholder="Enter address or NA if not residing"></textarea>
-                        </div>
-                        <div class="form-group">
-                            <label for="applicant-birth-country">Country of Birth *</label>
-                            <input type="text" id="applicant-birth-country" name="applicant_birth_country" required placeholder="Enter country or NA">
-                        </div>
-                        <div class="form-group">
-                           <label>Other Citizenship? *</label>
-                            <label><input type="radio" name="applicant_other_citizenship" value="Yes" required> Yes</label>
-                            <label><input type="radio" name="applicant_other_citizenship" value="No"> No</label>
-                             <label><input type="radio" name="applicant_other_citizenship" value="NA"> NA</label>
-                        </div>
-                        <div class="form-group full-width hidden" id="other-citizenship-details">
-                            <label for="applicant-other-citizenship-list">List Other Citizenships/Nationalities *</label>
-                            <input type="text" id="applicant-other-citizenship-list" name="applicant_other_citizenship_list" placeholder="List all or NA"> <!-- Required toggled by JS -->
-                        </div>
-                        <div class="form-group">
-                            <label for="applicant-birth-province">Province and State of Birth *</label>
-                            <input type="text" id="applicant-birth-province" name="applicant_birth_province" required placeholder="Enter province/state or NA">
-                        </div>
-                        <div class="form-group full-width">
-                            <label for="applicant-language">Language Proficiency (Written) *</label>
-                            <input type="text" id="applicant-language" name="applicant_language" required placeholder="List all written languages or NA">
-                        </div>
-                         <div class="form-group">
-                            <label for="applicant-email">Email *</label>
-                            <input type="email" id="applicant-email" name="applicant_email" required placeholder="Enter email or NA">
-                        </div>
-                        <div class="form-group">
-                            <label for="applicant-hp">HP Number *</label>
-                            <input type="tel" id="applicant-hp" name="applicant_hp" required placeholder="Enter phone number or NA">
-                        </div>
+                        <div class="form-group"> <label for="applicant-name">Full name as per passport *</label> <input type="text" id="applicant-name" name="applicant_name" required placeholder="Enter full name or NA"> </div>
+                        <div class="form-group"> <label for="applicant-race-religion">Race & Religion *</label> <input type="text" id="applicant-race-religion" name="applicant_race_religion" required placeholder="e.g., Chinese / Buddhist or NA"> </div>
+                        <div class="form-group"> <label for="applicant-current-status">Current Immigration Status in Singapore *</label> <input type="text" id="applicant-current-status" name="applicant_current_status" required placeholder="e.g., Employment Pass, Dependant's Pass, NA"> </div>
+                        <div class="form-group"> <label for="applicant-marital-status">Marital Status *</label> <select id="applicant-marital-status" name="applicant_marital_status" required> <option value="">-- Select --</option> <option value="Single">Single</option> <option value="Married">Married</option> <option value="Divorced">Divorced</option> <option value="Widowed">Widowed</option> <option value="Separated">Separated</option> <option value="NA">NA</option> </select> </div>
+                        <div class="form-group"> <label for="applicant-prev-status">Previous Immigration Status in Singapore *</label> <input type="text" id="applicant-prev-status" name="applicant_prev_status" required placeholder="Enter status or NA"> </div>
+                        <div class="form-group"> <label for="applicant-foreign-id">Foreign ID Number *</label> <input type="text" id="applicant-foreign-id" name="applicant_foreign_id" required placeholder="Enter ID or NA"> </div>
+                        <div class="form-group"> <label for="applicant-foreign-id-country">Foreign ID Issuing Country *</label> <input type="text" id="applicant-foreign-id-country" name="applicant_foreign_id_country" required placeholder="Enter country or NA"> </div>
+                        <div class="form-group"> <label for="applicant-alias">Alias (If any) *</label> <input type="text" id="applicant-alias" name="applicant_alias" required placeholder="Enter alias or NA"> </div>
+                        <div class="form-group full-width"> <label for="applicant-present-whereabouts">Present Whereabouts (Full Address) *</label> <textarea id="applicant-present-whereabouts" name="applicant_present_whereabouts" rows="3" required placeholder="Enter full address or NA"></textarea> </div>
+                        <div class="form-group"> <label for="applicant-nationality">Nationality *</label> <input type="text" id="applicant-nationality" name="applicant_nationality" required placeholder="Enter nationality or NA"> </div>
+                        <div class="form-group full-width"> <label for="applicant-nationality-address">Address in Country of Nationality *</label> <textarea id="applicant-nationality-address" name="applicant_nationality_address" rows="3" required placeholder="Enter address or NA"></textarea> </div>
+                        <div class="form-group"> <label for="applicant-dob">Date of Birth *</label> <input type="date" id="applicant-dob" name="applicant_dob" required> </div>
+                        <div class="form-group full-width"> <label for="applicant-sg-address">Address in Singapore *</label> <textarea id="applicant-sg-address" name="applicant_sg_address" rows="3" required placeholder="Enter address or NA if not residing"></textarea> </div>
+                        <div class="form-group"> <label for="applicant-birth-country">Country of Birth *</label> <input type="text" id="applicant-birth-country" name="applicant_birth_country" required placeholder="Enter country or NA"> </div>
+                        <div class="form-group"> <label>Other Citizenship? *</label> <label><input type="radio" name="applicant_other_citizenship" value="Yes" required> Yes</label> <label><input type="radio" name="applicant_other_citizenship" value="No"> No</label> <label><input type="radio" name="applicant_other_citizenship" value="NA"> NA</label> </div>
+                        <div class="form-group full-width hidden" id="other-citizenship-details"> <label for="applicant-other-citizenship-list">List Other Citizenships/Nationalities *</label> <input type="text" id="applicant-other-citizenship-list" name="applicant_other_citizenship_list" placeholder="List all or NA"> </div>
+                        <div class="form-group"> <label for="applicant-birth-province">Province and State of Birth *</label> <input type="text" id="applicant-birth-province" name="applicant_birth_province" required placeholder="Enter province/state or NA"> </div>
+                        <div class="form-group full-width"> <label for="applicant-language">Language Proficiency (Written) *</label> <input type="text" id="applicant-language" name="applicant_language" required placeholder="List all written languages or NA"> </div>
+                        <div class="form-group"> <label for="applicant-email">Email *</label> <input type="email" id="applicant-email" name="applicant_email" required placeholder="Enter email or NA"> </div>
+                        <div class="form-group"> <label for="applicant-hp">HP Number *</label> <input type="tel" id="applicant-hp" name="applicant_hp" required placeholder="Enter phone number or NA"> </div>
                     </div>
                 </section>
 
@@ -149,27 +127,13 @@
                      <div class="form-grid">
                         <fieldset class="fieldset-group">
                             <legend>Father</legend>
-                            <div class="form-group">
-                                <label for="father-first-name">First Name(s) *</label>
-                                <input type="text" id="father-first-name" name="father_first_name" required placeholder="Enter name or NA">
-                            </div>
-                             <div class="form-group">
-                                <label for="father-last-name">Last Name (Enter in BOLD/CAPS) *</label>
-                                <input type="text" id="father-last-name" name="father_last_name" required placeholder="Enter BOLD last name or NA">
-                             </div>
-                             <!-- Add other father details if needed based on p2 -->
+                            <div class="form-group"> <label for="father-first-name">First Name(s) *</label> <input type="text" id="father-first-name" name="father_first_name" required placeholder="Enter name or NA"> </div>
+                            <div class="form-group"> <label for="father-last-name">Last Name (Enter in BOLD/CAPS) *</label> <input type="text" id="father-last-name" name="father_last_name" required placeholder="Enter BOLD last name or NA"> </div>
                         </fieldset>
                         <fieldset class="fieldset-group">
                              <legend>Mother</legend>
-                            <div class="form-group">
-                                <label for="mother-first-name">First Name(s) *</label>
-                                <input type="text" id="mother-first-name" name="mother_first_name" required placeholder="Enter name or NA">
-                            </div>
-                             <div class="form-group">
-                                <label for="mother-last-name">Last Name (Enter in BOLD/CAPS) *</label>
-                                <input type="text" id="mother-last-name" name="mother_last_name" required placeholder="Enter BOLD last name or NA">
-                             </div>
-                             <!-- Add other mother details if needed based on p2 -->
+                            <div class="form-group"> <label for="mother-first-name">First Name(s) *</label> <input type="text" id="mother-first-name" name="mother_first_name" required placeholder="Enter name or NA"> </div>
+                            <div class="form-group"> <label for="mother-last-name">Last Name (Enter in BOLD/CAPS) *</label> <input type="text" id="mother-last-name" name="mother_last_name" required placeholder="Enter BOLD last name or NA"> </div>
                         </fieldset>
                     </div>
                 </section>
@@ -178,39 +142,16 @@
                 <section id="section-siblings" class="form-section">
                     <h2>Sibling's Information</h2>
                     <div id="siblings-container">
-                        <!-- Sibling 1 (template) -->
                         <fieldset class="repeatable-item fieldset-group" data-group="sibling">
                              <legend>Sibling 1</legend>
                              <button type="button" class="remove-item-button hidden">Remove Sibling</button>
                              <div class="form-grid">
-                                <div class="form-group">
-                                    <label for="sibling-1-name">Full Name (Last Name BOLD/CAPS) *</label>
-                                    <input type="text" id="sibling-1-name" name="sibling[1][name]" required placeholder="Enter name or NA">
-                                </div>
-                                <div class="form-group">
-                                    <label for="sibling-1-gender">Gender *</label>
-                                    <select id="sibling-1-gender" name="sibling[1][gender]" required>
-                                        <option value="">-- Select --</option>
-                                        <option value="Male">Male</option>
-                                        <option value="Female">Female</option>
-                                        <option value="Other">Other</option>
-                                        <option value="NA">NA</option>
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                     <label for="sibling-1-dob">Date of Birth *</label>
-                                     <input type="date" id="sibling-1-dob" name="sibling[1][dob]" required>
-                                </div>
-                                <!-- Add ALL other sibling fields from page 3/4/5 here, using name="sibling[1][fieldName]" -->
-                                <div class="form-group">
-                                    <label for="sibling-1-nationality">Nationality *</label>
-                                    <input type="text" id="sibling-1-nationality" name="sibling[1][nationality]" required placeholder="Enter nationality or NA">
-                                </div>
-                                 <div class="form-group">
-                                    <label for="sibling-1-occupation">Current Occupation *</label>
-                                    <input type="text" id="sibling-1-occupation" name="sibling[1][occupation]" required placeholder="Enter occupation or NA">
-                                </div>
-                                <!-- ... etc. for all fields on page 3, 4, 5 -->
+                                <div class="form-group"> <label for="sibling-1-name">Full Name (Last Name BOLD/CAPS) *</label> <input type="text" id="sibling-1-name" name="sibling[1][name]" required placeholder="Enter name or NA"> </div>
+                                <div class="form-group"> <label for="sibling-1-gender">Gender *</label> <select id="sibling-1-gender" name="sibling[1][gender]" required> <option value="">-- Select --</option> <option value="Male">Male</option> <option value="Female">Female</option> <option value="Other">Other</option> <option value="NA">NA</option> </select> </div>
+                                <div class="form-group"> <label for="sibling-1-dob">Date of Birth *</label> <input type="date" id="sibling-1-dob" name="sibling[1][dob]" required> </div>
+                                <div class="form-group"> <label for="sibling-1-nationality">Nationality *</label> <input type="text" id="sibling-1-nationality" name="sibling[1][nationality]" required placeholder="Enter nationality or NA"> </div>
+                                <div class="form-group"> <label for="sibling-1-occupation">Current Occupation *</label> <input type="text" id="sibling-1-occupation" name="sibling[1][occupation]" required placeholder="Enter occupation or NA"> </div>
+                                <!-- Add other sibling fields as needed -->
                              </div>
                         </fieldset>
                     </div>
@@ -226,39 +167,16 @@
                              <legend>Education Qualification 1</legend>
                              <button type="button" class="remove-item-button hidden">Remove Qualification</button>
                              <div class="form-grid">
-                                <div class="form-group">
-                                    <label for="edu-1-enrolled">Date Enrolled (MM/YYYY) *</label>
-                                    <input type="month" id="edu-1-enrolled" name="education[1][enrolled]" required>
-                                </div>
-                                 <div class="form-group">
-                                    <label for="edu-1-leaving">Date of Leaving (MM/YYYY) *</label>
-                                    <input type="month" id="edu-1-leaving" name="education[1][leaving]" required>
-                                </div>
-                                 <div class="form-group full-width">
-                                    <label for="edu-1-institution">Institution Name *</label>
-                                    <input type="text" id="edu-1-institution" name="education[1][institution]" required placeholder="Enter name or NA">
-                                </div>
-                                <div class="form-group full-width">
-                                    <label for="edu-1-address">Institution's Full Address *</label>
-                                    <input type="text" id="edu-1-address" name="education[1][address]" required placeholder="Enter address or NA">
-                                </div>
-                                <div class="form-group">
-                                    <label for="edu-1-level">Qualification Level *</label>
-                                    <input type="text" id="edu-1-level" name="education[1][level]" required placeholder="e.g., Bachelor, Master, Diploma or NA">
-                                </div>
-                                <div class="form-group">
-                                     <label>Full Time or Part Time? *</label>
-                                     <select name="education[1][time_status]" required>
-                                        <option value="">-- Select --</option>
-                                        <option value="Full Time">Full Time</option>
-                                        <option value="Part Time">Part Time</option>
-                                        <option value="NA">NA</option>
-                                     </select>
-                                </div>
+                                <div class="form-group"> <label for="edu-1-enrolled">Date Enrolled (MM/YYYY) *</label> <input type="month" id="edu-1-enrolled" name="education[1][enrolled]" required> </div>
+                                <div class="form-group"> <label for="edu-1-leaving">Date of Leaving (MM/YYYY) *</label> <input type="month" id="edu-1-leaving" name="education[1][leaving]" required> </div>
+                                <div class="form-group full-width"> <label for="edu-1-institution">Institution Name *</label> <input type="text" id="edu-1-institution" name="education[1][institution]" required placeholder="Enter name or NA"> </div>
+                                <div class="form-group full-width"> <label for="edu-1-address">Institution's Full Address *</label> <input type="text" id="edu-1-address" name="education[1][address]" required placeholder="Enter address or NA"> </div>
+                                <div class="form-group"> <label for="edu-1-level">Qualification Level *</label> <input type="text" id="edu-1-level" name="education[1][level]" required placeholder="e.g., Bachelor, Master, Diploma or NA"> </div>
+                                <div class="form-group"> <label>Full Time or Part Time? *</label> <select name="education[1][time_status]" required> <option value="">-- Select --</option> <option value="Full Time">Full Time</option> <option value="Part Time">Part Time</option> <option value="NA">NA</option> </select> </div>
                              </div>
                         </fieldset>
                      </div>
-                      <button type="button" id="add-education" class="button add-button">Add Education Qualification</button>
+                     <button type="button" id="add-education" class="button add-button">Add Education Qualification</button>
                 </section>
 
                 <!-- === Section 5: Employment History === -->
@@ -270,39 +188,14 @@
                              <legend>Employment Record 1</legend>
                              <button type="button" class="remove-item-button hidden">Remove Record</button>
                              <div class="form-grid">
-                                <div class="form-group">
-                                    <label for="emp-1-joined">Date Joined (MM/YYYY) *</label>
-                                    <input type="month" id="emp-1-joined" name="employment[1][joined]" required>
-                                </div>
-                                <div class="form-group">
-                                    <label for="emp-1-leaving">Date of Leaving (MM/YYYY) *</label>
-                                    <input type="month" id="emp-1-leaving" name="employment[1][leaving]" required>
-                                    <label><input type="checkbox" name="employment[1][current_job]" value="yes"> Currently employed here</label>
-                                </div>
-                                <div class="form-group full-width">
-                                    <label for="emp-1-company">Company Name & Business Industry *</label>
-                                    <input type="text" id="emp-1-company" name="employment[1][company_industry]" required placeholder="e.g., ABC Corp / IT Services or NA">
-                                </div>
-                                 <div class="form-group full-width">
-                                    <label for="emp-1-address">Company Full Address *</label>
-                                    <input type="text" id="emp-1-address" name="employment[1][address]" required placeholder="Enter address or NA">
-                                </div>
-                                <div class="form-group full-width">
-                                    <label for="emp-1-title">Occupation Title & List 3 responsibilities *</label>
-                                    <textarea id="emp-1-title" name="employment[1][title_responsibilities]" rows="4" required placeholder="Enter title and responsibilities or NA"></textarea>
-                                </div>
-                                <div class="form-group">
-                                    <label for="emp-1-salary">Basic & Gross Salary (Upon Leaving/Current) *</label>
-                                    <input type="text" id="emp-1-salary" name="employment[1][salary]" required placeholder="e.g., SGD 5000 / NA">
-                                </div>
-                                <div class="form-group">
-                                    <label for="emp-1-supervision">No. of Staff under supervision? *</label>
-                                    <input type="number" id="emp-1-supervision" name="employment[1][supervision_count]" required min="0" value="0">
-                                </div>
-                                <div class="form-group">
-                                    <label for="emp-1-company-size">Total No. of Company Staff? *</label>
-                                    <input type="text" id="emp-1-company-size" name="employment[1][company_size]" required placeholder="e.g., 50-100 or NA">
-                                </div>
+                                <div class="form-group"> <label for="emp-1-joined">Date Joined (MM/YYYY) *</label> <input type="month" id="emp-1-joined" name="employment[1][joined]" required> </div>
+                                <div class="form-group"> <label for="emp-1-leaving">Date of Leaving (MM/YYYY) *</label> <input type="month" id="emp-1-leaving" name="employment[1][leaving]" required> <label><input type="checkbox" name="employment[1][current_job]" value="yes"> Currently employed here</label> </div>
+                                <div class="form-group full-width"> <label for="emp-1-company">Company Name & Business Industry *</label> <input type="text" id="emp-1-company" name="employment[1][company_industry]" required placeholder="e.g., ABC Corp / IT Services or NA"> </div>
+                                <div class="form-group full-width"> <label for="emp-1-address">Company Full Address *</label> <input type="text" id="emp-1-address" name="employment[1][address]" required placeholder="Enter address or NA"> </div>
+                                <div class="form-group full-width"> <label for="emp-1-title">Occupation Title & List 3 responsibilities *</label> <textarea id="emp-1-title" name="employment[1][title_responsibilities]" rows="4" required placeholder="Enter title and responsibilities or NA"></textarea> </div>
+                                <div class="form-group"> <label for="emp-1-salary">Basic & Gross Salary (Upon Leaving/Current) *</label> <input type="text" id="emp-1-salary" name="employment[1][salary]" required placeholder="e.g., SGD 5000 / NA"> </div>
+                                <div class="form-group"> <label for="emp-1-supervision">No. of Staff under supervision? *</label> <input type="number" id="emp-1-supervision" name="employment[1][supervision_count]" required min="0" value="0"> </div>
+                                <div class="form-group"> <label for="emp-1-company-size">Total No. of Company Staff? *</label> <input type="text" id="emp-1-company-size" name="employment[1][company_size]" required placeholder="e.g., 50-100 or NA"> </div>
                              </div>
                          </fieldset>
                      </div>
@@ -318,30 +211,15 @@
                              <legend>Absence Period 1</legend>
                              <button type="button" class="remove-item-button hidden">Remove Period</button>
                              <div class="form-grid">
-                                <div class="form-group">
-                                    <label for="abs-1-leaving">Date of leaving (DD/MM/YYYY) *</label>
-                                    <input type="date" id="abs-1-leaving" name="absence[1][leaving]" required>
-                                </div>
-                                <div class="form-group">
-                                    <label for="abs-1-return">Date of return (DD/MM/YYYY) *</label>
-                                    <input type="date" id="abs-1-return" name="absence[1][return]" required>
-                                </div>
-                                <div class="form-group full-width">
-                                    <label for="abs-1-purpose">Purpose of Trip *</label>
-                                    <input type="text" id="abs-1-purpose" name="absence[1][purpose]" required placeholder="Enter purpose or NA">
-                                </div>
-                                <div class="form-group">
-                                    <label for="abs-1-country">Country *</label>
-                                    <input type="text" id="abs-1-country" name="absence[1][country]" required placeholder="Enter country or NA">
-                                </div>
-                                <div class="form-group">
-                                    <label for="abs-1-province">Province & State *</label>
-                                    <input type="text" id="abs-1-province" name="absence[1][province]" required placeholder="Enter province/state or NA">
-                                </div>
+                                <div class="form-group"> <label for="abs-1-leaving">Date of leaving (DD/MM/YYYY) *</label> <input type="date" id="abs-1-leaving" name="absence[1][leaving]" required> </div>
+                                <div class="form-group"> <label for="abs-1-return">Date of return (DD/MM/YYYY) *</label> <input type="date" id="abs-1-return" name="absence[1][return]" required> </div>
+                                <div class="form-group full-width"> <label for="abs-1-purpose">Purpose of Trip *</label> <input type="text" id="abs-1-purpose" name="absence[1][purpose]" required placeholder="Enter purpose or NA"> </div>
+                                <div class="form-group"> <label for="abs-1-country">Country *</label> <input type="text" id="abs-1-country" name="absence[1][country]" required placeholder="Enter country or NA"> </div>
+                                <div class="form-group"> <label for="abs-1-province">Province & State *</label> <input type="text" id="abs-1-province" name="absence[1][province]" required placeholder="Enter province/state or NA"> </div>
                              </div>
                           </fieldset>
                      </div>
-                      <button type="button" id="add-absence" class="button add-button">Add Period of Absence</button>
+                     <button type="button" id="add-absence" class="button add-button">Add Period of Absence</button>
                 </section>
 
                 <!-- === Section 7: Travel Documents === -->
@@ -352,30 +230,12 @@
                              <legend>Passport Record 1</legend>
                              <button type="button" class="remove-item-button hidden">Remove Passport</button>
                               <div class="form-grid">
-                                 <div class="form-group">
-                                    <label for="pass-1-name">Name as per Passport *</label>
-                                    <input type="text" id="pass-1-name" name="passport[1][name]" required placeholder="Enter name or NA">
-                                </div>
-                                <div class="form-group">
-                                    <label for="pass-1-number">Passport Number *</label>
-                                    <input type="text" id="pass-1-number" name="passport[1][number]" required placeholder="Enter number or NA">
-                                </div>
-                                <div class="form-group">
-                                    <label for="pass-1-issue-date">Passport Issue Date *</label>
-                                    <input type="date" id="pass-1-issue-date" name="passport[1][issue_date]" required>
-                                </div>
-                                <div class="form-group">
-                                    <label for="pass-1-expiry-date">Passport Expiry Date *</label>
-                                    <input type="date" id="pass-1-expiry-date" name="passport[1][expiry_date]" required>
-                                </div>
-                                 <div class="form-group">
-                                    <label for="pass-1-country">Country of Issuance *</label>
-                                    <input type="text" id="pass-1-country" name="passport[1][country]" required placeholder="Enter country or NA">
-                                </div>
-                                <div class="form-group">
-                                    <label for="pass-1-province">Province / State of Issuance *</label>
-                                    <input type="text" id="pass-1-province" name="passport[1][province]" required placeholder="Enter province/state or NA">
-                                </div>
+                                 <div class="form-group"> <label for="pass-1-name">Name as per Passport *</label> <input type="text" id="pass-1-name" name="passport[1][name]" required placeholder="Enter name or NA"> </div>
+                                 <div class="form-group"> <label for="pass-1-number">Passport Number *</label> <input type="text" id="pass-1-number" name="passport[1][number]" required placeholder="Enter number or NA"> </div>
+                                 <div class="form-group"> <label for="pass-1-issue-date">Passport Issue Date *</label> <input type="date" id="pass-1-issue-date" name="passport[1][issue_date]" required> </div>
+                                 <div class="form-group"> <label for="pass-1-expiry-date">Passport Expiry Date *</label> <input type="date" id="pass-1-expiry-date" name="passport[1][expiry_date]" required> </div>
+                                 <div class="form-group"> <label for="pass-1-country">Country of Issuance *</label> <input type="text" id="pass-1-country" name="passport[1][country]" required placeholder="Enter country or NA"> </div>
+                                 <div class="form-group"> <label for="pass-1-province">Province / State of Issuance *</label> <input type="text" id="pass-1-province" name="passport[1][province]" required placeholder="Enter province/state or NA"> </div>
                               </div>
                           </fieldset>
                      </div>
@@ -385,34 +245,14 @@
                 <!-- === Section 8: National Service === -->
                 <section id="section-ns" class="form-section">
                     <h2>National Service Details</h2>
-                    <div class="form-group">
-                         <label><input type="checkbox" id="ns-applicable" name="ns_applicable" value="yes"> National Service is Applicable to me</label>
-                    </div>
+                    <div class="form-group"> <label><input type="checkbox" id="ns-applicable" name="ns_applicable" value="yes"> National Service is Applicable to me</label> </div>
                     <div id="ns-details-container" class="hidden">
                          <div class="form-grid">
-                            <div class="form-group">
-                                <label>Organization *</label>
-                                <label><input type="checkbox" name="ns_organization[]" value="SAF"> SAF</label>
-                                <label><input type="checkbox" name="ns_organization[]" value="SCDF"> SCDF</label>
-                                <label><input type="checkbox" name="ns_organization[]" value="SPF"> SPF</label>
-                                <label><input type="checkbox" name="ns_organization[]" value="NA"> NA</label> <!-- Required toggled by JS -->
-                            </div>
-                             <div class="form-group">
-                                <label for="ns-enlistment">Date of Enlistment *</label>
-                                <input type="date" id="ns-enlistment" name="ns_enlistment"> <!-- Required toggled by JS -->
-                            </div>
-                             <div class="form-group">
-                                <label for="ns-ord">Operationally Ready Date (ORD) *</label>
-                                <input type="date" id="ns-ord" name="ns_ord"> <!-- Required toggled by JS -->
-                            </div>
-                             <div class="form-group full-width">
-                                <label for="ns-ranks">Ranks & Appointment Held at ORD *</label>
-                                <input type="text" id="ns-ranks" name="ns_ranks" placeholder="Enter ranks/appointment or NA"> <!-- Required toggled by JS -->
-                            </div>
-                            <div class="form-group full-width">
-                                <label for="ns-conduct">Performance & Conduct *</label>
-                                <input type="text" id="ns-conduct" name="ns_conduct" placeholder="Describe performance/conduct or NA"> <!-- Required toggled by JS -->
-                            </div>
+                            <div class="form-group"> <label>Organization *</label> <label><input type="checkbox" name="ns_organization[]" value="SAF"> SAF</label> <label><input type="checkbox" name="ns_organization[]" value="SCDF"> SCDF</label> <label><input type="checkbox" name="ns_organization[]" value="SPF"> SPF</label> <label><input type="checkbox" name="ns_organization[]" value="NA"> NA</label> </div>
+                            <div class="form-group"> <label for="ns-enlistment">Date of Enlistment *</label> <input type="date" id="ns-enlistment" name="ns_enlistment"> </div>
+                            <div class="form-group"> <label for="ns-ord">Operationally Ready Date (ORD) *</label> <input type="date" id="ns-ord" name="ns_ord"> </div>
+                            <div class="form-group full-width"> <label for="ns-ranks">Ranks & Appointment Held at ORD *</label> <input type="text" id="ns-ranks" name="ns_ranks" placeholder="Enter ranks/appointment or NA"> </div>
+                            <div class="form-group full-width"> <label for="ns-conduct">Performance & Conduct *</label> <input type="text" id="ns-conduct" name="ns_conduct" placeholder="Describe performance/conduct or NA"> </div>
                          </div>
                     </div>
                 </section>
@@ -420,65 +260,24 @@
                 <!-- === Section 9: Previous Marriage === -->
                 <section id="section-prev-marriage" class="form-section">
                      <h2>Main Applicant's Previous Marriage Information</h2>
-                      <div class="form-group">
-                         <label><input type="checkbox" id="prev-marriage-applicable" name="prev_marriage_applicable" value="yes"> Applicable if you have been divorced or widowed</label>
-                     </div>
+                     <div class="form-group"> <label><input type="checkbox" id="prev-marriage-applicable" name="prev_marriage_applicable" value="yes"> Applicable if you have been divorced or widowed</label> </div>
                      <div id="prev-marriage-container" class="hidden">
                         <fieldset class="repeatable-item fieldset-group" data-group="prev_marriage">
                            <legend>Previous Marriage Record 1</legend>
                            <button type="button" class="remove-item-button hidden">Remove Record</button>
                             <div class="form-grid">
-                                <div class="form-group">
-                                    <label for="prev-marr-1-spouse-name">Name of Former Spouse (as per passport) *</label>
-                                    <input type="text" id="prev-marr-1-spouse-name" name="prev_marriage[1][spouse_name]" placeholder="Enter name or NA"> <!-- Required toggled by JS -->
-                                </div>
-                                <div class="form-group">
-                                    <label for="prev-marr-1-spouse-nationality">Nationality of Former Spouse *</label>
-                                    <input type="text" id="prev-marr-1-spouse-nationality" name="prev_marriage[1][spouse_nationality]" placeholder="Enter nationality or NA"> <!-- Required toggled by JS -->
-                                </div>
-                                <div class="form-group">
-                                    <label for="prev-marr-1-spouse-dob">Spouse Date of Birth *</label>
-                                    <input type="date" id="prev-marr-1-spouse-dob" name="prev_marriage[1][spouse_dob]"> <!-- Required toggled by JS -->
-                                </div>
-                                <div class="form-group">
-                                    <label for="prev-marr-1-spouse-birthplace">Spouse State & Country of Birth *</label>
-                                    <input type="text" id="prev-marr-1-spouse-birthplace" name="prev_marriage[1][spouse_birthplace]" placeholder="Enter place or NA"> <!-- Required toggled by JS -->
-                                </div>
-                                 <div class="form-group full-width">
-                                    <label for="prev-marr-1-spouse-whereabouts">Spouse Present whereabouts *</label>
-                                    <input type="text" id="prev-marr-1-spouse-whereabouts" name="prev_marriage[1][spouse_whereabouts]" placeholder="Enter location or NA"> <!-- Required toggled by JS -->
-                                </div>
-                                <div class="form-group">
-                                    <label for="prev-marr-1-divorce-date">Date of Divorce/Widowed *</label>
-                                    <input type="date" id="prev-marr-1-divorce-date" name="prev_marriage[1][divorce_date]"> <!-- Required toggled by JS -->
-                                </div>
-                                <div class="form-group">
-                                    <label for="prev-marr-1-spouse-sg-status">Spouse Current SG Status *</label>
-                                    <input type="text" id="prev-marr-1-spouse-sg-status" name="prev_marriage[1][spouse_sg_status]" placeholder="Enter status or NA"> <!-- Required toggled by JS -->
-                                </div>
-                                 <div class="form-group">
-                                    <label for="prev-marr-1-spouse-fin">Spouse FIN/NRIC *</label>
-                                    <input type="text" id="prev-marr-1-spouse-fin" name="prev_marriage[1][spouse_fin]" placeholder="Enter FIN/NRIC or NA"> <!-- Required toggled by JS -->
-                                </div>
-                                <div class="form-group">
-                                    <label for="prev-marr-1-marriage-date">Date of Marriage *</label>
-                                    <input type="date" id="prev-marr-1-marriage-date" name="prev_marriage[1][marriage_date]"> <!-- Required toggled by JS -->
-                                </div>
-                                <div class="form-group">
-                                    <label for="prev-marr-1-cert-no">Marriage Certificate Number *</label>
-                                    <input type="text" id="prev-marr-1-cert-no" name="prev_marriage[1][cert_no]" placeholder="Enter number or NA"> <!-- Required toggled by JS -->
-                                </div>
-                                 <div class="form-group">
-                                    <label for="prev-marr-1-marriage-place">State and Country of Marriage *</label>
-                                    <input type="text" id="prev-marr-1-marriage-place" name="prev_marriage[1][marriage_place]" placeholder="Enter place or NA"> <!-- Required toggled by JS -->
-                                </div>
-                                <div class="form-group">
-                                   <label>Ex-spouse custody of children? *</label>
-                                    <label><input type="radio" name="prev_marriage[1][custody]" value="Yes"> Yes</label> <!-- Required toggled by JS -->
-                                    <label><input type="radio" name="prev_marriage[1][custody]" value="No"> No</label>
-                                    <label><input type="radio" name="prev_marriage[1][custody]" value="Joint"> Joint</label>
-                                     <label><input type="radio" name="prev_marriage[1][custody]" value="NA"> NA</label>
-                                </div>
+                                <div class="form-group"> <label for="prev-marr-1-spouse-name">Name of Former Spouse (as per passport) *</label> <input type="text" id="prev-marr-1-spouse-name" name="prev_marriage[1][spouse_name]" placeholder="Enter name or NA"> </div>
+                                <div class="form-group"> <label for="prev-marr-1-spouse-nationality">Nationality of Former Spouse *</label> <input type="text" id="prev-marr-1-spouse-nationality" name="prev_marriage[1][spouse_nationality]" placeholder="Enter nationality or NA"> </div>
+                                <div class="form-group"> <label for="prev-marr-1-spouse-dob">Spouse Date of Birth *</label> <input type="date" id="prev-marr-1-spouse-dob" name="prev_marriage[1][spouse_dob]"> </div>
+                                <div class="form-group"> <label for="prev-marr-1-spouse-birthplace">Spouse State & Country of Birth *</label> <input type="text" id="prev-marr-1-spouse-birthplace" name="prev_marriage[1][spouse_birthplace]" placeholder="Enter place or NA"> </div>
+                                <div class="form-group full-width"> <label for="prev-marr-1-spouse-whereabouts">Spouse Present whereabouts *</label> <input type="text" id="prev-marr-1-spouse-whereabouts" name="prev_marriage[1][spouse_whereabouts]" placeholder="Enter location or NA"> </div>
+                                <div class="form-group"> <label for="prev-marr-1-divorce-date">Date of Divorce/Widowed *</label> <input type="date" id="prev-marr-1-divorce-date" name="prev_marriage[1][divorce_date]"> </div>
+                                <div class="form-group"> <label for="prev-marr-1-spouse-sg-status">Spouse Current SG Status *</label> <input type="text" id="prev-marr-1-spouse-sg-status" name="prev_marriage[1][spouse_sg_status]" placeholder="Enter status or NA"> </div>
+                                <div class="form-group"> <label for="prev-marr-1-spouse-fin">Spouse FIN/NRIC *</label> <input type="text" id="prev-marr-1-spouse-fin" name="prev_marriage[1][spouse_fin]" placeholder="Enter FIN/NRIC or NA"> </div>
+                                <div class="form-group"> <label for="prev-marr-1-marriage-date">Date of Marriage *</label> <input type="date" id="prev-marr-1-marriage-date" name="prev_marriage[1][marriage_date]"> </div>
+                                <div class="form-group"> <label for="prev-marr-1-cert-no">Marriage Certificate Number *</label> <input type="text" id="prev-marr-1-cert-no" name="prev_marriage[1][cert_no]" placeholder="Enter number or NA"> </div>
+                                <div class="form-group"> <label for="prev-marr-1-marriage-place">State and Country of Marriage *</label> <input type="text" id="prev-marr-1-marriage-place" name="prev_marriage[1][marriage_place]" placeholder="Enter place or NA"> </div>
+                                <div class="form-group"> <label>Ex-spouse custody of children? *</label> <label><input type="radio" name="prev_marriage[1][custody]" value="Yes"> Yes</label> <label><input type="radio" name="prev_marriage[1][custody]" value="No"> No</label> <label><input type="radio" name="prev_marriage[1][custody]" value="Joint"> Joint</label> <label><input type="radio" name="prev_marriage[1][custody]" value="NA"> NA</label> </div>
                             </div>
                         </fieldset>
                      </div>
@@ -493,63 +292,24 @@
                             <legend>Child 1 (from Previous Marriage)</legend>
                             <button type="button" class="remove-item-button hidden">Remove Child</button>
                              <div class="form-grid">
-                                 <div class="form-group">
-                                    <label for="prev-child-1-name">Full Name (as per passport) *</label>
-                                    <input type="text" id="prev-child-1-name" name="prev_child[1][name]" placeholder="Enter name or NA"> <!-- Required toggled by JS -->
-                                </div>
-                                <div class="form-group">
-                                    <label for="prev-child-1-nationality">Nationality *</label>
-                                    <input type="text" id="prev-child-1-nationality" name="prev_child[1][nationality]" placeholder="Enter nationality or NA"> <!-- Required toggled by JS -->
-                                </div>
-                                <div class="form-group">
-                                    <label for="prev-child-1-race">Race & Religion *</label>
-                                    <input type="text" id="prev-child-1-race" name="prev_child[1][race]" placeholder="Enter race/religion or NA"> <!-- Required toggled by JS -->
-                                </div>
-                                <div class="form-group">
-                                    <label for="prev-child-1-dob">Date of Birth *</label>
-                                    <input type="date" id="prev-child-1-dob" name="prev_child[1][dob]"> <!-- Required toggled by JS -->
-                                </div>
-                                 <div class="form-group">
-                                    <label for="prev-child-1-birthplace">State & Country of Birth *</label>
-                                    <input type="text" id="prev-child-1-birthplace" name="prev_child[1][birthplace]" placeholder="Enter place or NA"> <!-- Required toggled by JS -->
-                                </div>
-                                <div class="form-group">
-                                    <label for="prev-child-1-birthcert">Birth Cert No *</label>
-                                    <input type="text" id="prev-child-1-birthcert" name="prev_child[1][birthcert]" placeholder="Enter number or NA"> <!-- Required toggled by JS -->
-                                </div>
-                                <div class="form-group full-width">
-                                    <label for="prev-child-1-whereabouts">Present whereabouts *</label>
-                                    <input type="text" id="prev-child-1-whereabouts" name="prev_child[1][whereabouts]" placeholder="Enter location or NA"> <!-- Required toggled by JS -->
-                                </div>
-                                 <div class="form-group">
-                                    <label for="prev-child-1-other-parent">Name of other parent *</label>
-                                    <input type="text" id="prev-child-1-other-parent" name="prev_child[1][other_parent]" placeholder="Enter name or NA"> <!-- Required toggled by JS -->
-                                </div>
-                                <!-- Add Passport, Education fields from page 11 -->
-                                <div class="form-group">
-                                    <label for="prev-child-1-sg-status">Current SG Status *</label>
-                                    <input type="text" id="prev-child-1-sg-status" name="prev_child[1][sg_status]" placeholder="Enter status or NA"> <!-- Required toggled by JS -->
-                                </div>
-                                 <div class="form-group">
-                                    <label for="prev-child-1-fin">FIN/NRIC *</label>
-                                    <input type="text" id="prev-child-1-fin" name="prev_child[1][fin]" placeholder="Enter FIN/NRIC or NA"> <!-- Required toggled by JS -->
-                                </div>
-                                <div class="form-group">
-                                   <label>Is child currently employed? *</label>
-                                    <label><input type="radio" name="prev_child[1][employed]" value="Yes"> Yes</label> <!-- Required toggled by JS -->
-                                    <label><input type="radio" name="prev_child[1][employed]" value="No"> No</label>
-                                    <label><input type="radio" name="prev_child[1][employed]" value="NA"> NA</label>
-                                </div>
-                                <div class="form-group full-width hidden" data-condition='prev_child[1][employed]=="Yes"'>
-                                     <label>If Employed: Occupation, Salary, Company, Start Date *</label>
-                                     <textarea name="prev_child[1][employment_details]" rows="3" placeholder="Enter details or NA"></textarea> <!-- Required toggled by JS -->
-                                </div>
+                                 <div class="form-group"> <label for="prev-child-1-name">Full Name (as per passport) *</label> <input type="text" id="prev-child-1-name" name="prev_child[1][name]" placeholder="Enter name or NA"> </div>
+                                 <div class="form-group"> <label for="prev-child-1-nationality">Nationality *</label> <input type="text" id="prev-child-1-nationality" name="prev_child[1][nationality]" placeholder="Enter nationality or NA"> </div>
+                                 <div class="form-group"> <label for="prev-child-1-race">Race & Religion *</label> <input type="text" id="prev-child-1-race" name="prev_child[1][race]" placeholder="Enter race/religion or NA"> </div>
+                                 <div class="form-group"> <label for="prev-child-1-dob">Date of Birth *</label> <input type="date" id="prev-child-1-dob" name="prev_child[1][dob]"> </div>
+                                 <div class="form-group"> <label for="prev-child-1-birthplace">State & Country of Birth *</label> <input type="text" id="prev-child-1-birthplace" name="prev_child[1][birthplace]" placeholder="Enter place or NA"> </div>
+                                 <div class="form-group"> <label for="prev-child-1-birthcert">Birth Cert No *</label> <input type="text" id="prev-child-1-birthcert" name="prev_child[1][birthcert]" placeholder="Enter number or NA"> </div>
+                                 <div class="form-group full-width"> <label for="prev-child-1-whereabouts">Present whereabouts *</label> <input type="text" id="prev-child-1-whereabouts" name="prev_child[1][whereabouts]" placeholder="Enter location or NA"> </div>
+                                 <div class="form-group"> <label for="prev-child-1-other-parent">Name of other parent *</label> <input type="text" id="prev-child-1-other-parent" name="prev_child[1][other_parent]" placeholder="Enter name or NA"> </div>
+                                 <!-- Add Passport, Education fields from page 11 -->
+                                 <div class="form-group"> <label for="prev-child-1-sg-status">Current SG Status *</label> <input type="text" id="prev-child-1-sg-status" name="prev_child[1][sg_status]" placeholder="Enter status or NA"> </div>
+                                 <div class="form-group"> <label for="prev-child-1-fin">FIN/NRIC *</label> <input type="text" id="prev-child-1-fin" name="prev_child[1][fin]" placeholder="Enter FIN/NRIC or NA"> </div>
+                                 <div class="form-group"> <label>Is child currently employed? *</label> <label><input type="radio" name="prev_child[1][employed]" value="Yes"> Yes</label> <label><input type="radio" name="prev_child[1][employed]" value="No"> No</label> <label><input type="radio" name="prev_child[1][employed]" value="NA"> NA</label> </div>
+                                 <div class="form-group full-width hidden" data-condition='prev_child[#][employed]=="Yes"'> <label>If Employed: Occupation, Salary, Company, Start Date *</label> <textarea name="prev_child[1][employment_details]" rows="3" placeholder="Enter details or NA"></textarea> </div>
                              </div>
                          </fieldset>
                      </div>
                      <button type="button" id="add-prev-child" class="button add-button">Add Child from Previous Marriage</button>
                 </section>
-
 
                 <!-- === Section 11: Review & Submit === -->
                 <section id="section-review" class="form-section">
@@ -564,12 +324,6 @@
             </form>
         </main>
 
-        <!-- Login Prompt shown when user is logged out -->
-        <div id="login-prompt" class="login-prompt">
-            <h2>Please Log In or Sign Up</h2>
-            <p>You need an account to fill out and save the questionnaire.</p>
-            <!-- The data-netlify-identity-button in the header handles showing the modal -->
-        </div>
     </div> <!-- End .container -->
 
 
@@ -579,80 +333,35 @@
         <p>Tel: +65 8785 5563 | Email: info@eh-immigration.com</p>
     </footer>
 
-    <!-- === TEMPLATES FOR REPEATABLE SECTIONS (Keep near end of body) === -->
-
-    <!-- Template for Siblings (Already provided earlier, ensure it's here) -->
+    <!-- === TEMPLATES FOR REPEATABLE SECTIONS === -->
+    <!-- Template for Siblings -->
     <template id="sibling-template">
          <fieldset class="repeatable-item fieldset-group" data-group="sibling">
              <legend>Sibling #</legend>
              <button type="button" class="remove-item-button">Remove Sibling</button>
              <div class="form-grid">
-                <div class="form-group">
-                    <label>Full Name (Last Name BOLD/CAPS) *</label>
-                    <input type="text" name="sibling[#][name]" required placeholder="Enter name or NA">
-                </div>
-                <div class="form-group">
-                    <label>Gender *</label>
-                    <select name="sibling[#][gender]" required>
-                        <option value="">-- Select --</option>
-                        <option value="Male">Male</option>
-                        <option value="Female">Female</option>
-                        <option value="Other">Other</option>
-                        <option value="NA">NA</option>
-                    </select>
-                </div>
-                 <div class="form-group">
-                     <label>Date of Birth *</label>
-                     <input type="date" name="sibling[#][dob]" required>
-                 </div>
-                 <div class="form-group">
-                     <label>Nationality *</label>
-                     <input type="text" name="sibling[#][nationality]" required placeholder="Enter nationality or NA">
-                 </div>
-                 <div class="form-group">
-                     <label>Current Occupation *</label>
-                     <input type="text" name="sibling[#][occupation]" required placeholder="Enter occupation or NA">
-                 </div>
-                 <!-- Add ALL other sibling fields -->
+                 <div class="form-group"> <label>Full Name (Last Name BOLD/CAPS) *</label> <input type="text" name="sibling[#][name]" required data-initially-required="true" placeholder="Enter name or NA"> </div>
+                 <div class="form-group"> <label>Gender *</label> <select name="sibling[#][gender]" required data-initially-required="true"> <option value="">-- Select --</option> <option value="Male">Male</option> <option value="Female">Female</option> <option value="Other">Other</option> <option value="NA">NA</option> </select> </div>
+                 <div class="form-group"> <label>Date of Birth *</label> <input type="date" name="sibling[#][dob]" required data-initially-required="true"> </div>
+                 <div class="form-group"> <label>Nationality *</label> <input type="text" name="sibling[#][nationality]" required data-initially-required="true" placeholder="Enter nationality or NA"> </div>
+                 <div class="form-group"> <label>Current Occupation *</label> <input type="text" name="sibling[#][occupation]" required data-initially-required="true" placeholder="Enter occupation or NA"> </div>
+                 <!-- Add other sibling fields -->
              </div>
         </fieldset>
     </template>
 
-     <!-- Template for Education History -->
+    <!-- Template for Education History -->
     <template id="education-template">
         <fieldset class="repeatable-item fieldset-group" data-group="education">
              <legend>Education Qualification #</legend>
              <button type="button" class="remove-item-button">Remove Qualification</button>
              <div class="form-grid">
-                <div class="form-group">
-                    <label>Date Enrolled (MM/YYYY) *</label>
-                    <input type="month" name="education[#][enrolled]" required>
-                </div>
-                 <div class="form-group">
-                    <label>Date of Leaving (MM/YYYY) *</label>
-                    <input type="month" name="education[#][leaving]" required>
-                </div>
-                 <div class="form-group full-width">
-                    <label>Institution Name *</label>
-                    <input type="text" name="education[#][institution]" required placeholder="Enter name or NA">
-                </div>
-                <div class="form-group full-width">
-                    <label>Institution's Full Address *</label>
-                    <input type="text" name="education[#][address]" required placeholder="Enter address or NA">
-                </div>
-                <div class="form-group">
-                    <label>Qualification Level *</label>
-                    <input type="text" name="education[#][level]" required placeholder="e.g., Bachelor, Master, Diploma or NA">
-                </div>
-                <div class="form-group">
-                     <label>Full Time or Part Time? *</label>
-                     <select name="education[#][time_status]" required>
-                        <option value="">-- Select --</option>
-                        <option value="Full Time">Full Time</option>
-                        <option value="Part Time">Part Time</option>
-                        <option value="NA">NA</option>
-                     </select>
-                </div>
+                <div class="form-group"> <label>Date Enrolled (MM/YYYY) *</label> <input type="month" name="education[#][enrolled]" required data-initially-required="true"> </div>
+                <div class="form-group"> <label>Date of Leaving (MM/YYYY) *</label> <input type="month" name="education[#][leaving]" required data-initially-required="true"> </div>
+                <div class="form-group full-width"> <label>Institution Name *</label> <input type="text" name="education[#][institution]" required data-initially-required="true" placeholder="Enter name or NA"> </div>
+                <div class="form-group full-width"> <label>Institution's Full Address *</label> <input type="text" name="education[#][address]" required data-initially-required="true" placeholder="Enter address or NA"> </div>
+                <div class="form-group"> <label>Qualification Level *</label> <input type="text" name="education[#][level]" required data-initially-required="true" placeholder="e.g., Bachelor, Master, Diploma or NA"> </div>
+                <div class="form-group"> <label>Full Time or Part Time? *</label> <select name="education[#][time_status]" required data-initially-required="true"> <option value="">-- Select --</option> <option value="Full Time">Full Time</option> <option value="Part Time">Part Time</option> <option value="NA">NA</option> </select> </div>
              </div>
         </fieldset>
     </template>
@@ -663,39 +372,14 @@
              <legend>Employment Record #</legend>
              <button type="button" class="remove-item-button">Remove Record</button>
              <div class="form-grid">
-                <div class="form-group">
-                    <label>Date Joined (MM/YYYY) *</label>
-                    <input type="month" name="employment[#][joined]" required>
-                </div>
-                <div class="form-group">
-                    <label>Date of Leaving (MM/YYYY) *</label>
-                    <input type="month" name="employment[#][leaving]" required>
-                    <label><input type="checkbox" name="employment[#][current_job]" value="yes"> Currently employed here</label>
-                </div>
-                <div class="form-group full-width">
-                    <label>Company Name & Business Industry *</label>
-                    <input type="text" name="employment[#][company_industry]" required placeholder="e.g., ABC Corp / IT Services or NA">
-                </div>
-                 <div class="form-group full-width">
-                    <label>Company Full Address *</label>
-                    <input type="text" name="employment[#][address]" required placeholder="Enter address or NA">
-                </div>
-                <div class="form-group full-width">
-                    <label>Occupation Title & List 3 responsibilities *</label>
-                    <textarea name="employment[#][title_responsibilities]" rows="4" required placeholder="Enter title and responsibilities or NA"></textarea>
-                </div>
-                <div class="form-group">
-                    <label>Basic & Gross Salary (Upon Leaving/Current) *</label>
-                    <input type="text" name="employment[#][salary]" required placeholder="e.g., SGD 5000 / NA">
-                </div>
-                <div class="form-group">
-                    <label>No. of Staff under supervision? *</label>
-                    <input type="number" name="employment[#][supervision_count]" required min="0" value="0">
-                </div>
-                <div class="form-group">
-                    <label>Total No. of Company Staff? *</label>
-                    <input type="text" name="employment[#][company_size]" required placeholder="e.g., 50-100 or NA">
-                </div>
+                <div class="form-group"> <label>Date Joined (MM/YYYY) *</label> <input type="month" name="employment[#][joined]" required data-initially-required="true"> </div>
+                <div class="form-group"> <label>Date of Leaving (MM/YYYY) *</label> <input type="month" name="employment[#][leaving]" required data-initially-required="true"> <label><input type="checkbox" name="employment[#][current_job]" value="yes"> Currently employed here</label> </div>
+                <div class="form-group full-width"> <label>Company Name & Business Industry *</label> <input type="text" name="employment[#][company_industry]" required data-initially-required="true" placeholder="e.g., ABC Corp / IT Services or NA"> </div>
+                <div class="form-group full-width"> <label>Company Full Address *</label> <input type="text" name="employment[#][address]" required data-initially-required="true" placeholder="Enter address or NA"> </div>
+                <div class="form-group full-width"> <label>Occupation Title & List 3 responsibilities *</label> <textarea name="employment[#][title_responsibilities]" rows="4" required data-initially-required="true" placeholder="Enter title and responsibilities or NA"></textarea> </div>
+                <div class="form-group"> <label>Basic & Gross Salary (Upon Leaving/Current) *</label> <input type="text" name="employment[#][salary]" required data-initially-required="true" placeholder="e.g., SGD 5000 / NA"> </div>
+                <div class="form-group"> <label>No. of Staff under supervision? *</label> <input type="number" name="employment[#][supervision_count]" required data-initially-required="true" min="0" value="0"> </div>
+                <div class="form-group"> <label>Total No. of Company Staff? *</label> <input type="text" name="employment[#][company_size]" required data-initially-required="true" placeholder="e.g., 50-100 or NA"> </div>
              </div>
          </fieldset>
     </template>
@@ -706,26 +390,11 @@
              <legend>Absence Period #</legend>
              <button type="button" class="remove-item-button">Remove Period</button>
              <div class="form-grid">
-                <div class="form-group">
-                    <label>Date of leaving (DD/MM/YYYY) *</label>
-                    <input type="date" name="absence[#][leaving]" required>
-                </div>
-                <div class="form-group">
-                    <label>Date of return (DD/MM/YYYY) *</label>
-                    <input type="date" name="absence[#][return]" required>
-                </div>
-                <div class="form-group full-width">
-                    <label>Purpose of Trip *</label>
-                    <input type="text" name="absence[#][purpose]" required placeholder="Enter purpose or NA">
-                </div>
-                <div class="form-group">
-                    <label>Country *</label>
-                    <input type="text" name="absence[#][country]" required placeholder="Enter country or NA">
-                </div>
-                <div class="form-group">
-                    <label>Province & State *</label>
-                    <input type="text" name="absence[#][province]" required placeholder="Enter province/state or NA">
-                </div>
+                <div class="form-group"> <label>Date of leaving (DD/MM/YYYY) *</label> <input type="date" name="absence[#][leaving]" required data-initially-required="true"> </div>
+                <div class="form-group"> <label>Date of return (DD/MM/YYYY) *</label> <input type="date" name="absence[#][return]" required data-initially-required="true"> </div>
+                <div class="form-group full-width"> <label>Purpose of Trip *</label> <input type="text" name="absence[#][purpose]" required data-initially-required="true" placeholder="Enter purpose or NA"> </div>
+                <div class="form-group"> <label>Country *</label> <input type="text" name="absence[#][country]" required data-initially-required="true" placeholder="Enter country or NA"> </div>
+                <div class="form-group"> <label>Province & State *</label> <input type="text" name="absence[#][province]" required data-initially-required="true" placeholder="Enter province/state or NA"> </div>
              </div>
          </fieldset>
     </template>
@@ -736,30 +405,12 @@
              <legend>Passport Record #</legend>
              <button type="button" class="remove-item-button">Remove Passport</button>
               <div class="form-grid">
-                 <div class="form-group">
-                    <label>Name as per Passport *</label>
-                    <input type="text" name="passport[#][name]" required placeholder="Enter name or NA">
-                </div>
-                <div class="form-group">
-                    <label>Passport Number *</label>
-                    <input type="text" name="passport[#][number]" required placeholder="Enter number or NA">
-                </div>
-                <div class="form-group">
-                    <label>Passport Issue Date *</label>
-                    <input type="date" name="passport[#][issue_date]" required>
-                </div>
-                <div class="form-group">
-                    <label>Passport Expiry Date *</label>
-                    <input type="date" name="passport[#][expiry_date]" required>
-                </div>
-                 <div class="form-group">
-                    <label>Country of Issuance *</label>
-                    <input type="text" name="passport[#][country]" required placeholder="Enter country or NA">
-                </div>
-                <div class="form-group">
-                    <label>Province / State of Issuance *</label>
-                    <input type="text" name="passport[#][province]" required placeholder="Enter province/state or NA">
-                </div>
+                 <div class="form-group"> <label>Name as per Passport *</label> <input type="text" name="passport[#][name]" required data-initially-required="true" placeholder="Enter name or NA"> </div>
+                 <div class="form-group"> <label>Passport Number *</label> <input type="text" name="passport[#][number]" required data-initially-required="true" placeholder="Enter number or NA"> </div>
+                 <div class="form-group"> <label>Passport Issue Date *</label> <input type="date" name="passport[#][issue_date]" required data-initially-required="true"> </div>
+                 <div class="form-group"> <label>Passport Expiry Date *</label> <input type="date" name="passport[#][expiry_date]" required data-initially-required="true"> </div>
+                 <div class="form-group"> <label>Country of Issuance *</label> <input type="text" name="passport[#][country]" required data-initially-required="true" placeholder="Enter country or NA"> </div>
+                 <div class="form-group"> <label>Province / State of Issuance *</label> <input type="text" name="passport[#][province]" required data-initially-required="true" placeholder="Enter province/state or NA"> </div>
               </div>
           </fieldset>
     </template>
@@ -770,57 +421,18 @@
            <legend>Previous Marriage Record #</legend>
            <button type="button" class="remove-item-button">Remove Record</button>
             <div class="form-grid">
-                 <div class="form-group">
-                    <label>Name of Former Spouse (as per passport) *</label>
-                    <input type="text" name="prev_marriage[#][spouse_name]" placeholder="Enter name or NA" required>
-                </div>
-                <div class="form-group">
-                    <label>Nationality of Former Spouse *</label>
-                    <input type="text" name="prev_marriage[#][spouse_nationality]" placeholder="Enter nationality or NA" required>
-                </div>
-                 <div class="form-group">
-                    <label>Spouse Date of Birth *</label>
-                    <input type="date" name="prev_marriage[#][spouse_dob]" required>
-                </div>
-                <div class="form-group">
-                    <label>Spouse State & Country of Birth *</label>
-                    <input type="text" name="prev_marriage[#][spouse_birthplace]" placeholder="Enter place or NA" required>
-                </div>
-                 <div class="form-group full-width">
-                    <label>Spouse Present whereabouts *</label>
-                    <input type="text" name="prev_marriage[#][spouse_whereabouts]" placeholder="Enter location or NA" required>
-                </div>
-                <div class="form-group">
-                    <label>Date of Divorce/Widowed *</label>
-                    <input type="date" name="prev_marriage[#][divorce_date]" required>
-                </div>
-                <div class="form-group">
-                    <label>Spouse Current SG Status *</label>
-                    <input type="text" name="prev_marriage[#][spouse_sg_status]" placeholder="Enter status or NA" required>
-                </div>
-                 <div class="form-group">
-                    <label>Spouse FIN/NRIC *</label>
-                    <input type="text" name="prev_marriage[#][spouse_fin]" placeholder="Enter FIN/NRIC or NA" required>
-                </div>
-                <div class="form-group">
-                    <label>Date of Marriage *</label>
-                    <input type="date" name="prev_marriage[#][marriage_date]" required>
-                </div>
-                <div class="form-group">
-                    <label>Marriage Certificate Number *</label>
-                    <input type="text" name="prev_marriage[#][cert_no]" placeholder="Enter number or NA" required>
-                </div>
-                 <div class="form-group">
-                    <label>State and Country of Marriage *</label>
-                    <input type="text" name="prev_marriage[#][marriage_place]" placeholder="Enter place or NA" required>
-                </div>
-                <div class="form-group">
-                   <label>Ex-spouse custody of children? *</label>
-                    <label><input type="radio" name="prev_marriage[#][custody]" value="Yes" required> Yes</label>
-                    <label><input type="radio" name="prev_marriage[#][custody]" value="No"> No</label>
-                    <label><input type="radio" name="prev_marriage[#][custody]" value="Joint"> Joint</label>
-                     <label><input type="radio" name="prev_marriage[#][custody]" value="NA"> NA</label>
-                </div>
+                 <div class="form-group"> <label>Name of Former Spouse (as per passport) *</label> <input type="text" name="prev_marriage[#][spouse_name]" placeholder="Enter name or NA" data-initially-required="true"> </div>
+                 <div class="form-group"> <label>Nationality of Former Spouse *</label> <input type="text" name="prev_marriage[#][spouse_nationality]" placeholder="Enter nationality or NA" data-initially-required="true"> </div>
+                 <div class="form-group"> <label>Spouse Date of Birth *</label> <input type="date" name="prev_marriage[#][spouse_dob]" data-initially-required="true"> </div>
+                 <div class="form-group"> <label>Spouse State & Country of Birth *</label> <input type="text" name="prev_marriage[#][spouse_birthplace]" placeholder="Enter place or NA" data-initially-required="true"> </div>
+                 <div class="form-group full-width"> <label>Spouse Present whereabouts *</label> <input type="text" name="prev_marriage[#][spouse_whereabouts]" placeholder="Enter location or NA" data-initially-required="true"> </div>
+                 <div class="form-group"> <label>Date of Divorce/Widowed *</label> <input type="date" name="prev_marriage[#][divorce_date]" data-initially-required="true"> </div>
+                 <div class="form-group"> <label>Spouse Current SG Status *</label> <input type="text" name="prev_marriage[#][spouse_sg_status]" placeholder="Enter status or NA" data-initially-required="true"> </div>
+                 <div class="form-group"> <label>Spouse FIN/NRIC *</label> <input type="text" name="prev_marriage[#][spouse_fin]" placeholder="Enter FIN/NRIC or NA" data-initially-required="true"> </div>
+                 <div class="form-group"> <label>Date of Marriage *</label> <input type="date" name="prev_marriage[#][marriage_date]" data-initially-required="true"> </div>
+                 <div class="form-group"> <label>Marriage Certificate Number *</label> <input type="text" name="prev_marriage[#][cert_no]" placeholder="Enter number or NA" data-initially-required="true"> </div>
+                 <div class="form-group"> <label>State and Country of Marriage *</label> <input type="text" name="prev_marriage[#][marriage_place]" placeholder="Enter place or NA" data-initially-required="true"> </div>
+                 <div class="form-group"> <label>Ex-spouse custody of children? *</label> <label><input type="radio" name="prev_marriage[#][custody]" value="Yes" data-initially-required="true"> Yes</label> <label><input type="radio" name="prev_marriage[#][custody]" value="No"> No</label> <label><input type="radio" name="prev_marriage[#][custody]" value="Joint"> Joint</label> <label><input type="radio" name="prev_marriage[#][custody]" value="NA"> NA</label> </div>
             </div>
         </fieldset>
     </template>
@@ -831,65 +443,27 @@
             <legend>Child # (from Previous Marriage)</legend>
             <button type="button" class="remove-item-button">Remove Child</button>
              <div class="form-grid">
-                <div class="form-group">
-                    <label>Full Name (as per passport) *</label>
-                    <input type="text" name="prev_child[#][name]" placeholder="Enter name or NA" required>
-                </div>
-                <div class="form-group">
-                    <label>Nationality *</label>
-                    <input type="text" name="prev_child[#][nationality]" placeholder="Enter nationality or NA" required>
-                </div>
-                <div class="form-group">
-                    <label>Race & Religion *</label>
-                    <input type="text" name="prev_child[#][race]" placeholder="Enter race/religion or NA" required>
-                </div>
-                 <div class="form-group">
-                    <label>Date of Birth *</label>
-                    <input type="date" name="prev_child[#][dob]" required>
-                </div>
-                 <div class="form-group">
-                    <label>State & Country of Birth *</label>
-                    <input type="text" name="prev_child[#][birthplace]" placeholder="Enter place or NA" required>
-                </div>
-                <div class="form-group">
-                    <label>Birth Cert No *</label>
-                    <input type="text" name="prev_child[#][birthcert]" placeholder="Enter number or NA" required>
-                </div>
-                <div class="form-group full-width">
-                    <label>Present whereabouts *</label>
-                    <input type="text" name="prev_child[#][whereabouts]" placeholder="Enter location or NA" required>
-                </div>
-                 <div class="form-group">
-                    <label>Name of other parent *</label>
-                    <input type="text" name="prev_child[#][other_parent]" placeholder="Enter name or NA" required>
-                </div>
-                <!-- Add Passport, Education fields from page 11 -->
-                <div class="form-group">
-                    <label>Current SG Status *</label>
-                    <input type="text" name="prev_child[#][sg_status]" placeholder="Enter status or NA" required>
-                </div>
-                 <div class="form-group">
-                    <label>FIN/NRIC *</label>
-                    <input type="text" name="prev_child[#][fin]" placeholder="Enter FIN/NRIC or NA" required>
-                </div>
-                <div class="form-group">
-                   <label>Is child currently employed? *</label>
-                    <label><input type="radio" name="prev_child[#][employed]" value="Yes" required> Yes</label>
-                    <label><input type="radio" name="prev_child[#][employed]" value="No"> No</label>
-                    <label><input type="radio" name="prev_child[#][employed]" value="NA"> NA</label>
-                </div>
-                <div class="form-group full-width hidden" data-condition='prev_child[#][employed]=="Yes"'>
-                     <label>If Employed: Occupation, Salary, Company, Start Date *</label>
-                     <textarea name="prev_child[#][employment_details]" rows="3" placeholder="Enter details or NA"></textarea> <!-- Required toggled by JS -->
-                </div>
+                 <div class="form-group"> <label>Full Name (as per passport) *</label> <input type="text" name="prev_child[#][name]" placeholder="Enter name or NA" data-initially-required="true"> </div>
+                 <div class="form-group"> <label>Nationality *</label> <input type="text" name="prev_child[#][nationality]" placeholder="Enter nationality or NA" data-initially-required="true"> </div>
+                 <div class="form-group"> <label>Race & Religion *</label> <input type="text" name="prev_child[#][race]" placeholder="Enter race/religion or NA" data-initially-required="true"> </div>
+                 <div class="form-group"> <label>Date of Birth *</label> <input type="date" name="prev_child[#][dob]" data-initially-required="true"> </div>
+                 <div class="form-group"> <label>State & Country of Birth *</label> <input type="text" name="prev_child[#][birthplace]" placeholder="Enter place or NA" data-initially-required="true"> </div>
+                 <div class="form-group"> <label>Birth Cert No *</label> <input type="text" name="prev_child[#][birthcert]" placeholder="Enter number or NA" data-initially-required="true"> </div>
+                 <div class="form-group full-width"> <label>Present whereabouts *</label> <input type="text" name="prev_child[#][whereabouts]" placeholder="Enter location or NA" data-initially-required="true"> </div>
+                 <div class="form-group"> <label>Name of other parent *</label> <input type="text" name="prev_child[#][other_parent]" placeholder="Enter name or NA" data-initially-required="true"> </div>
+                 <!-- Add Passport, Education fields from page 11 -->
+                 <div class="form-group"> <label>Current SG Status *</label> <input type="text" name="prev_child[#][sg_status]" placeholder="Enter status or NA" data-initially-required="true"> </div>
+                 <div class="form-group"> <label>FIN/NRIC *</label> <input type="text" name="prev_child[#][fin]" placeholder="Enter FIN/NRIC or NA" data-initially-required="true"> </div>
+                 <div class="form-group"> <label>Is child currently employed? *</label> <label><input type="radio" name="prev_child[#][employed]" value="Yes" data-initially-required="true"> Yes</label> <label><input type="radio" name="prev_child[#][employed]" value="No"> No</label> <label><input type="radio" name="prev_child[#][employed]" value="NA"> NA</label> </div>
+                 <div class="form-group full-width hidden" data-condition='prev_child[#][employed]=="Yes"'> <label>If Employed: Occupation, Salary, Company, Start Date *</label> <textarea name="prev_child[#][employment_details]" rows="3" placeholder="Enter details or NA"></textarea> <!-- Required toggled by JS --> </div>
              </div>
          </fieldset>
     </template>
     <!-- === END TEMPLATES === -->
 
 
-    <!-- Netlify Identity Widget Script -->
-    <script type="text/javascript" src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+    <!-- Auth0 SPA SDK -->
+    <script src="https://cdn.auth0.com/js/auth0-spa-js/2.1/auth0-spa-js.production.js"></script>
 
     <!-- Your Custom Script -->
     <script src="script.js"></script>
