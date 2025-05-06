@@ -4,14 +4,59 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - E&H Immigration Portal</title>
-    <link rel="stylesheet" href="style.css"> <!-- Optional shared styles -->
+    <!-- Link to the main style.css first -->
+    <link rel="stylesheet" href="style.css">
+    <!-- Specific styles for the login page -->
     <style>
-        body { display: flex; justify-content: center; align-items: center; min-height: 80vh; flex-direction: column; }
-        .login-box { text-align: center; padding: 30px; border: 1px solid #ccc; border-radius: 8px; background-color: #f9f9f9; }
-        .button { padding: 12px 25px; font-size: 1.1em; cursor: pointer; border: none; border-radius: 5px; }
-        .login-button { background-color: #007bff; color: white; }
-        .login-button:hover { background-color: #0056b3; }
-        #error-message { color: red; margin-top: 15px; }
+        /* Center the login box */
+        body.login-page {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 90vh; /* Use viewport height */
+            background-color: #f4f4f4; /* Optional background */
+            padding: 20px; /* Add some padding */
+            box-sizing: border-box; /* Include padding in height calculation */
+        }
+        .login-box {
+            text-align: center;
+            padding: 40px; /* More padding */
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            background-color: #fff; /* White background */
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* Add subtle shadow */
+            max-width: 400px; /* Limit width */
+            width: 100%;
+        }
+        .login-box img {
+            max-width: 150px; /* Adjust logo size */
+            margin-bottom: 20px; /* Space below logo */
+        }
+         .login-box h1 {
+            margin-bottom: 10px;
+            font-size: 1.8em;
+            color: #333;
+         }
+         .login-box p {
+             margin-bottom: 25px;
+             color: #555;
+         }
+        /* Use button styles from main style.css if defined, or override */
+        .button.login-button {
+            padding: 12px 25px;
+            font-size: 1.1em;
+            background-color: #337ab7; /* Use main submit color */
+            color: white;
+            border: none; /* Ensure no default border */
+        }
+        .button.login-button:hover {
+            background-color: #286090; /* Darker shade on hover */
+        }
+        #error-message {
+            color: red;
+            margin-top: 15px;
+            font-size: 0.9em;
+        }
     </style>
 
     <!-- 1. Import Map -->
@@ -25,9 +70,13 @@
     </script>
 
 </head>
-<body>
+<!-- Add class to body for specific login page styling -->
+<body class="login-page">
 
     <div class="login-box">
+        <!-- Add Logo Here -->
+        <img src="images/EH_logo.png" alt="E&H Immigration Logo">
+
         <h1>E&H Immigration Portal</h1>
         <p>Please log in or sign up to continue.</p>
         <button id="btn-login" class="button login-button">Log In / Sign Up</button>
