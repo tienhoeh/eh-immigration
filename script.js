@@ -1,83 +1,65 @@
-document.addEventListener('DOMContentLoaded', async () => { // Make top-level async
+document.addEventListener('DOMContentLoaded', () => { // Main listener for DOM readiness
+    console.log("DOMContentLoaded event fired.");
 
     // --- Auth0 Configuration ---
     const auth0Config = {
-        domain: 'eh-immigration.jp.auth0.com', // Replace with your Auth0 Tenant Domain if different
-        clientId: 'GyTGD7qnwsNkXiXmxVTdVLfJMUlwdAND', // Replace with your Auth0 Application Client ID if different
+        domain: 'eh-immigration.jp.auth0.com', // Confirm this is correct
+        clientId: 'GyTGD7qnwsNkXiXmxVTdVLfJMUlwdAND', // Confirm this is correct
         authorizationParams: {
-            redirect_uri: window.location.origin // Use current origin as the redirect URI
-            // Add audience or scopes here if needed later, e.g., for calling an API
-            // audience: 'YOUR_API_IDENTIFIER',
-            // scope: 'openid profile email read:data'
+            redirect_uri: window.location.origin // Uses deployed URL automatically
+            // audience: 'YOUR_API_IDENTIFIER', // Add if needed later
+            // scope: 'openid profile email' // Default scopes often sufficient
         }
     };
 
-    // --- Global Elements ---
-    const form = document.querySelector('form[name="immigration-questionnaire"]');
-    const sideNavLinks = document.querySelectorAll('.side-nav a');
-    const formSections = document.querySelectorAll('.form-section');
-    const saveButton = document.getElementById('save-progress');
-    const saveStatus = document.getElementById('save-status');
-    const formContainer = document.getElementById('form-container');
-    const btnLogin = document.getElementById('btn-login');
-    const btnLogout = document.getElementById('btn-logout');
-    const userProfileElement = document.getElementById('user-profile');
-    const userEmailElement = document.getElementById('user-email');
-    const authLoadingElement = document.getElementById('auth-loading');
-    const bodyElement = document.body;
+    // --- Global Elements (Declared early, assigned after DOM ready) ---
+    let form, sideNavLinks, formSections, saveButton, saveStatus, formContainer,
+        btnLogin, btnLogout, userProfileElement, userEmailElement,
+        authLoadingElement, bodyElement;
 
-    let auth0 = null; // To hold the Auth0 client instance
-    let currentUser = null; // To hold user profile info
-    let currentUserId = 'anonymous'; // To hold Auth0 user 'sub'
+    // Assign elements now that DOM is loaded
+    form = document.querySelector('form[name="immigration-questionnaire"]');
+    sideNavLinks = document.querySelectorAll('.side-nav a');
+    formSections = document.querySelectorAll('.form-section');
+    saveButton = document.getElementById('save-progress');
+    saveStatus = document.getElementById('save-status');
+    formContainer = document.getElementById('form-container');
+    btnLogin = document.getElementById('btn-login');
+    btnLogout = document.getElementById('btn-logout');
+    userProfileElement = document.getElementById('user-profile');
+    userEmailElement = document.getElementById('user-email');
+    authLoadingElement = document.getElementById('auth-loading');
+    bodyElement = document.body;
 
-    // <<< NEW DEBUGGING LINES START >>>
-    console.log("DOMContentLoaded event fired.");
-    console.log("Checking if createAuth0Client is defined RIGHT BEFORE using it...");
-    // This log will show the type. It should be 'function' if the SDK loaded.
-    console.log(`Type of createAuth0Client: ${typeof createAuth0Client}`);
-    // <<< NEW DEBUGGING LINES END >>>
+    // --- State Variables ---
+    let auth0 = null; // Holds the Auth0 client instance
+    let currentUser = null; // Holds user profile info
+    let currentUserId = 'anonymous'; // Holds Auth0 user 'sub'
 
-    // --- Initialize Auth0 Client ---
-    try {
-        // Make sure createAuth0Client is available globally (it should be if SDK script loaded)
-        if (typeof createAuth0Client !== 'function') {
-            // This error should now be preceded by the console logs above
-            throw new Error("createAuth0Client is not defined. Auth0 SDK script might not be loaded or executed yet.");
-        }
-        auth0 = await createAuth0Client({
-            domain: auth0Config.domain,
-            clientId: auth0Config.clientId,
-            authorizationParams: auth0Config.authorizationParams
-        });
-        console.log("Auth0 client initialized successfully."); // Success message
-    } catch (e) {
-        console.error("Error initializing Auth0 client:", e); // Log the specific error
-        if (authLoadingElement) authLoadingElement.textContent = "Error initializing authentication. Please check console and refresh."; // More specific error message
-        if (bodyElement) bodyElement.classList.remove('loading'); // Show error message
-        return; // Stop further execution
-    }
+    // ==================================
+    //  Helper Functions Definitions
+    // ==================================
 
     // --- Auth0 Helper Functions ---
     const login = async () => {
-        console.log("Login function called."); // Log when function starts
-        if (!auth0) { // Add a check if auth0 client exists
+        console.log("Login function called.");
+        if (!auth0) {
             console.error("Auth0 client not initialized, cannot login.");
             alert("Authentication system is not ready. Please try again later.");
             return;
         }
         try {
-            console.log("Attempting auth0.loginWithRedirect()..."); // Log before redirect
+            console.log("Attempting auth0.loginWithRedirect()...");
             await auth0.loginWithRedirect();
-            // Note: Execution typically stops here as the browser redirects.
-            console.log("loginWithRedirect called (browser should redirect soon)."); // Might not show if redirect is immediate
+            console.log("loginWithRedirect called (browser should redirect soon).");
         } catch (e) {
-            console.error("Login failed inside try/catch:", e); // Log if redirect itself fails
-            alert("Login failed: " + e.message); // Show error to user
+            console.error("Login failed inside try/catch:", e);
+            alert("Login failed: " + e.message);
         }
     };
 
     const logout = () => {
-        console.log("Logout function called."); // Added log for logout
+        console.log("Logout function called.");
         if (!auth0) {
             console.error("Auth0 client not initialized, cannot logout.");
             return;
@@ -85,18 +67,22 @@ document.addEventListener('DOMContentLoaded', async () => { // Make top-level as
         console.log("Attempting auth0.logout()...");
         auth0.logout({
             logoutParams: {
-                returnTo: window.location.origin // Redirect back to the app after logout
+                returnTo: window.location.origin
             }
         });
     };
 
     // --- UI Update Function ---
     const updateUI = async () => {
-        console.log("updateUI called."); // Log start of UI update
+        console.log("updateUI called.");
         if (!auth0) {
             console.error("Cannot update UI, Auth0 client not initialized.");
-            if(bodyElement) bodyElement.classList.remove('loading'); // Remove loading anyway
-            if(authLoadingElement) authLoadingElement.style.display = 'none'; // Hide loading text
+            if (bodyElement) bodyElement.classList.remove('loading');
+            if (authLoadingElement) authLoadingElement.style.display = 'none';
+            // Ensure login button is visible if auth fails fundamentally
+            if(btnLogin) btnLogin.style.display = 'inline-block';
+            if(userProfileElement) userProfileElement.style.display = 'none';
+            if(btnLogout) btnLogout.style.display = 'none';
             return;
         }
         try {
@@ -105,7 +91,7 @@ document.addEventListener('DOMContentLoaded', async () => { // Make top-level as
 
             if (isAuthenticated) {
                 currentUser = await auth0.getUser();
-                currentUserId = currentUser?.sub || 'anonymous_authenticated'; // Get user's unique subject ID
+                currentUserId = currentUser?.sub || 'anonymous_authenticated';
                 console.log("User Profile:", currentUser, " User ID (sub):", currentUserId);
 
                 if(btnLogin) btnLogin.style.display = 'none';
@@ -114,10 +100,12 @@ document.addEventListener('DOMContentLoaded', async () => { // Make top-level as
                 if(btnLogout) btnLogout.style.display = 'inline-block';
 
                 if(formContainer) formContainer.style.visibility = 'visible';
-                if(saveButton) saveButton.disabled = false;
+                 if(saveButton) saveButton.disabled = false;
 
-                setActiveLink();
+                // Load draft only AFTER confirming authentication and making form visible
                 loadDraft();
+                // Update nav highlighting AFTER potential form visibility change
+                setActiveLink();
 
             } else {
                 currentUser = null;
@@ -132,7 +120,6 @@ document.addEventListener('DOMContentLoaded', async () => { // Make top-level as
             }
         } catch (e) {
             console.error("Error during UI update (isAuthenticated/getUser):", e);
-             // Handle UI update errors, show generic logged-out state
             currentUser = null;
             currentUserId = 'anonymous';
             if(btnLogin) btnLogin.style.display = 'inline-block';
@@ -141,124 +128,31 @@ document.addEventListener('DOMContentLoaded', async () => { // Make top-level as
             if(formContainer) formContainer.style.visibility = 'hidden';
             if(saveButton) saveButton.disabled = true;
         } finally {
-             // Remove loading state once UI is updated or an error occurred
             console.log("Removing loading state.");
             if(bodyElement) bodyElement.classList.remove('loading');
             if(authLoadingElement) authLoadingElement.style.display = 'none';
         }
     };
 
-    // --- Handle Auth0 Redirect Callback ---
-    // Check if the user is returning from Auth0 with code and state params
-    if (window.location.search.includes("code=") && window.location.search.includes("state=")) {
-        console.log("Detected Auth0 callback parameters in URL.");
-        if (!auth0) {
-             console.error("Auth0 client not ready to handle redirect callback. Waiting might resolve if init is slow.");
-             // Ideally, wait for init promise, but simple approach proceeds. updateUI will handle auth state.
-         } else {
-            try {
-                console.log("Attempting handleRedirectCallback...");
-                await auth0.handleRedirectCallback();
-                console.log("Handled redirect callback successfully.");
-                 // Clean the URL (remove code and state parameters)
-                console.log("Cleaning URL parameters.");
-                window.history.replaceState({}, document.title, window.location.pathname);
-            } catch (e) {
-                console.error("Error handling redirect callback:", e);
-                // Error here might mean the state is invalid or code is expired.
-                // updateUI will likely run later and show a logged-out state.
-            }
-         }
-    } else {
-         console.log("No Auth0 callback parameters detected in URL (normal page load or post-callback load).");
-     }
-
-    // --- Event Listeners ---
-    if (btnLogin) {
-        console.log("Attempting to add login listener to:", btnLogin); // Debug log
-        btnLogin.addEventListener('click', login); // Attach listener
-    } else {
-        console.error("Login button (#btn-login) not found in the DOM!"); // Error if missing
-    }
-
-    if (btnLogout) {
-        console.log("Attempting to add logout listener to:", btnLogout); // Debug log
-        btnLogout.addEventListener('click', logout);
-    } else {
-         console.error("Logout button (#btn-logout) not found in the DOM!"); // Error if missing
-     }
-
-
-    // --- Helper: Get User-Specific Draft Key ---
+    // --- Draft Logic ---
     const getDraftKey = () => {
-        // currentUserId is updated in updateUI after successful authentication
         if (currentUserId === 'anonymous' || !currentUserId) {
             console.warn("Attempting to get draft key for anonymous user.");
         }
         return `ehImmigrationDraft_${currentUserId}`;
     };
 
-    // --- Save/Load Progress (localStorage) ---
-    if (saveButton) {
-        saveButton.addEventListener('click', () => {
-            const draftKey = getDraftKey();
-            if (!form || currentUserId === 'anonymous') {
-                if (saveStatus) {
-                    saveStatus.textContent = 'Please log in to save draft.';
-                    saveStatus.style.color = 'orange';
-                    setTimeout(() => { if(saveStatus) saveStatus.textContent = ''; }, 3000);
-                }
-                return;
-            }
-
-            console.log(`Saving draft with key: ${draftKey}`);
-            const dataObject = {};
-            form.querySelectorAll('input, select, textarea').forEach(input => {
-                const name = input.name;
-                if (!name || name === 'bot-field' || name === 'form-name' || input.closest('.hidden')) {
-                    return;
-                }
-                 if (input.type === 'checkbox') {
-                     if (name.endsWith('[]')) {
-                         const baseName = name.slice(0, -2);
-                         if (!dataObject[baseName]) dataObject[baseName] = [];
-                         if (input.checked) { dataObject[baseName].push(input.value); }
-                     } else { dataObject[name] = input.checked; }
-                 } else if (input.type === 'radio') {
-                     if (input.checked) { dataObject[name] = input.value; }
-                     else if (dataObject[name] === undefined) { /* dataObject[name] = null; */ }
-                 } else { dataObject[name] = input.value; }
-            });
-
-            try {
-                localStorage.setItem(draftKey, JSON.stringify(dataObject));
-                if (saveStatus) {
-                    saveStatus.textContent = 'Draft saved successfully!';
-                    saveStatus.style.color = 'green';
-                    setTimeout(() => { if(saveStatus) saveStatus.textContent = ''; }, 3000);
-                }
-            } catch (e) {
-                console.error("Error saving draft:", e);
-                if (saveStatus) {
-                    saveStatus.textContent = 'Error saving draft (Storage might be full).';
-                    saveStatus.style.color = 'red';
-                }
-            }
-        });
-    } else {
-        console.error("Save button (#save-progress) not found!");
-    }
-
-
     function loadDraft() {
         const draftKey = getDraftKey();
         if (currentUserId === 'anonymous') {
             console.log("Not loading draft for anonymous user.");
-            return; // Don't load if not logged in
+            return;
         }
         const savedData = localStorage.getItem(draftKey);
         if (!savedData || !form) {
             console.log(`No draft found for key ${draftKey} or form not ready.`);
+            // Ensure conditional checks run even if no draft, as default values might matter
+            triggerInitialConditionalChecks();
             return;
         }
 
@@ -278,58 +172,43 @@ document.addEventListener('DOMContentLoaded', async () => { // Make top-level as
 
                  const containerId = `${groupName.replace('_', '-')}-container`;
                  const addButtonId = `add-${groupName.replace('_', '-')}`;
+                 const templateId = `${groupName.replace('_', '-')}-template`;
                  const container = document.getElementById(containerId);
                  const addButton = document.getElementById(addButtonId);
+                 const template = document.getElementById(templateId);
 
-                 if (container && addButton && maxIndex > 0) {
+                 if (container && addButton && template && maxIndex > 0) {
                      const existingItems = container.querySelectorAll(`.repeatable-item[data-group="${groupName}"]`).length;
                      const itemsToAdd = maxIndex - existingItems;
                      console.log(`Repeatable ${groupName}: max index ${maxIndex}, existing ${existingItems}, adding ${itemsToAdd}`);
-                     // Add items synchronously before populating
+                     // Add items synchronously
                      for (let i = 0; i < itemsToAdd; i++) {
-                        const template = document.getElementById(`${groupName.replace('_', '-')}-template`);
-                        if (template) {
-                            const clone = template.content.cloneNode(true);
-                            const newItem = clone.querySelector('.repeatable-item');
-                            if (newItem) {
-                                newItem.dataset.group = groupName;
-                                const removeButton = newItem.querySelector('.remove-item-button');
-                                if (removeButton) {
-                                    // Add listener immediately
-                                    removeButton.addEventListener('click', (e) => { e.target.closest('.repeatable-item').remove(); updateItemsUI(); });
-                                }
-                                container.appendChild(newItem);
-                            }
-                        }
+                         const clone = template.content.cloneNode(true);
+                         const newItem = clone.querySelector('.repeatable-item');
+                         if (newItem) {
+                             newItem.dataset.group = groupName;
+                             const removeButton = newItem.querySelector('.remove-item-button');
+                             if (removeButton) {
+                                 removeButton.addEventListener('click', (e) => { e.target.closest('.repeatable-item').remove(); updateRepeatableItemsUI(container, groupName); });
+                             }
+                             container.appendChild(newItem);
+                         }
                      }
-                     // Update UI (numbering, remove buttons) after adding all needed items
-                     const updateItemsUI = () => { // Define helper within scope if needed or make global
-                         container.querySelectorAll(`.repeatable-item[data-group="${groupName}"]`).forEach((item, index) => {
-                             const removeButton = item.querySelector('.remove-item-button');
-                             if (removeButton) { removeButton.classList.toggle('hidden', container.querySelectorAll(`.repeatable-item[data-group="${groupName}"]`).length <= 1 && !item.dataset.canBeEmpty); }
-                             const legend = item.querySelector('legend');
-                             if (legend) { legend.textContent = legend.textContent.replace(/#|\d+/, `${index + 1}`); }
-                         });
-                     };
-                     updateItemsUI(); // Update numbering/buttons now
+                     // Update UI for all items in this group AFTER adding/removing
+                     updateRepeatableItemsUI(container, groupName);
 
                  } else if (maxIndex > 0) {
-                     console.warn(`Could not find container or button for repeatable group: ${groupName}`);
+                     console.warn(`Could not find container, button, or template for repeatable group: ${groupName}`);
                  }
             });
 
-
-            // --- Populate All Fields (including newly added repeatable ones) ---
+            // --- Populate All Fields ---
             // Use timeout to allow DOM updates from adding repeatable sections to settle
             setTimeout(() => {
                 console.log("Populating form fields from loaded draft...");
+                if (!form) { console.error("Form element not found during population."); return; }
                 form.querySelectorAll('input, select, textarea').forEach(input => {
                     const name = input.name;
-                    // Need to get the index if it's a repeatable field
-                    const repeatableMatch = name.match(/^(\w+)\[(\d+)\]/);
-                    const baseName = repeatableMatch ? repeatableMatch[1] : name;
-                    const index = repeatableMatch ? parseInt(repeatableMatch[2]) : null;
-
                     if (!name || name === 'bot-field' || name === 'form-name') return;
 
                     const value = dataObject[name];
@@ -341,9 +220,10 @@ document.addEventListener('DOMContentLoaded', async () => { // Make top-level as
                             groupRadios.forEach(r => { if (dataObject[name] === r.value) { groupHasSavedValue = true; } });
                             if (!groupHasSavedValue) input.checked = false;
                         }
-                        return;
+                        return; // Skip setting value if undefined
                     }
 
+                    // Set values based on type
                     if (input.type === 'checkbox') {
                         if (name.endsWith('[]')) {
                             const actualBaseName = name.slice(0, -2);
@@ -354,9 +234,10 @@ document.addEventListener('DOMContentLoaded', async () => { // Make top-level as
                     } else if (input.type === 'radio') {
                         input.checked = (input.value === value);
                     } else {
-                        input.value = value;
+                        input.value = value; // Handles text, date, month, select, textarea etc.
                     }
-                    input.dispatchEvent(new Event('change', { bubbles: true })); // Trigger change event AFTER setting value
+                    // Trigger change event AFTER setting value
+                     input.dispatchEvent(new Event('change', { bubbles: true }));
                 });
 
                 // Trigger conditional checks AFTER potentially loading data and fields are populated
@@ -367,8 +248,8 @@ document.addEventListener('DOMContentLoaded', async () => { // Make top-level as
                     saveStatus.style.color = 'blue';
                     setTimeout(() => { if(saveStatus) saveStatus.textContent = ''; }, 3000);
                 }
-                 console.log("Form population complete.");
-            }, 100); // Small delay (e.g., 100ms)
+                 console.log("Form population attempt complete.");
+            }, 150); // Increased delay slightly
 
         } catch (e) {
             console.error("Error loading draft JSON:", e);
@@ -376,87 +257,75 @@ document.addEventListener('DOMContentLoaded', async () => { // Make top-level as
                 saveStatus.textContent = 'Error loading draft.';
                 saveStatus.style.color = 'red';
             }
+            // Still run conditional checks even if draft fails to load
+             triggerInitialConditionalChecks();
         }
     }
-
 
     // --- Navigation Logic ---
     function setActiveLink() {
         let currentSectionId = '';
-        // Ensure formContainer exists and is visible before calculating scroll/offsets
-        if (!formContainer || formContainer.style.visibility === 'hidden') return;
+        if (!formContainer || formContainer.style.visibility === 'hidden' || !formSections || formSections.length === 0) return;
 
         const scrollPosition = formContainer.scrollTop;
-        const offset = 100; // Viewport offset
+        const offset = 100; // Adjust as needed
 
-        if(formSections.length === 0) return; // Don't run if no sections found
-
-        formSections.forEach(section => {
-             // Check visibility before considering offsetTop
+        // Find the topmost section within the offset
+        for (let section of formSections) {
             if (section.offsetParent !== null && section.offsetTop <= scrollPosition + offset) {
-                currentSectionId = section.id;
+                 currentSectionId = section.id;
+                 // Don't break, let the last matching section win (the one lowest on the page but still meeting criteria)
             }
-        });
-         // Default to first section if none match (e.g., scrolled to top)
+        }
+
+         // Default to first visible section if nothing else matches
          if (!currentSectionId) {
-             currentSectionId = formSections[0].id;
+            for(let section of formSections){
+                if(section.offsetParent !== null){ // is visible?
+                    currentSectionId = section.id;
+                    break;
+                }
+            }
          }
 
         sideNavLinks.forEach(link => {
             link.classList.remove('active');
-            // Check if href matches, handling potential null/empty currentSectionId
             if (currentSectionId && link.getAttribute('href') === `#${currentSectionId}`) {
                 link.classList.add('active');
             }
         });
     }
-    if(formContainer) formContainer.addEventListener('scroll', setActiveLink);
-    sideNavLinks.forEach(link => {
-        link.addEventListener('click', (e) => {
-            e.preventDefault();
-            const targetId = link.getAttribute('href');
-            const targetSection = document.querySelector(targetId);
-            if (targetSection && formContainer) {
-                 // Ensure section is actually visible before scrolling
-                 if(targetSection.offsetParent !== null) {
-                    formContainer.scrollTo({ top: targetSection.offsetTop - 10, behavior: 'smooth' }); // Adjust offset slightly
-                    // Update active link immediately for feedback
-                    sideNavLinks.forEach(l => l.classList.remove('active'));
-                    link.classList.add('active');
-                 } else {
-                     console.warn(`Navigation target section ${targetId} is not visible.`);
-                 }
-            } else {
-                 console.warn(`Navigation target ${targetId} or form container not found.`);
-             }
-        });
-    });
-
 
     // --- Conditional Logic ---
+    // Generic function to toggle visibility and required status
     function setupConditionalVisibility(triggerElementOrNodeList, targetElement, showConditionCallback, dependentElements = []) {
-         if(!targetElement) { console.warn("Target element not found for conditional visibility setup for:", triggerElementOrNodeList); return;}
+         if(!targetElement) { console.warn("Target element not found for conditional visibility setup."); return;}
          const elements = triggerElementOrNodeList instanceof NodeList ? Array.from(triggerElementOrNodeList) : [triggerElementOrNodeList];
          if(elements.length === 0 || elements[0] === null) { console.warn("Trigger element(s) not found for conditional visibility setup for target:", targetElement.id); return; }
 
         const checkVisibility = () => {
-            // Defer check slightly if called very early, elements might not be fully ready
-            requestAnimationFrame(() => {
+            requestAnimationFrame(() => { // Defer slightly
                 const shouldShow = showConditionCallback(elements);
                 targetElement.classList.toggle('hidden', !shouldShow);
 
-                // Toggle required attribute ONLY if the element is intended to be required when visible
-                targetElement.querySelectorAll('input[data-initially-required="true"], select[data-initially-required="true"], textarea[data-initially-required="true"]').forEach(input => {
-                    if (!input.closest('.hidden')) { input.required = shouldShow; } // Only require if parent is shown
-                    else { input.required = false; } // Always false if hidden
+                // Toggle required based on visibility AND data attribute
+                targetElement.querySelectorAll('input, select, textarea').forEach(input => {
+                    const isInitiallyRequired = input.dataset.initiallyRequired === 'true';
+                    if (!input.closest('.hidden')) { // Check if parent is visible
+                         // Require if it's meant to be required AND shown
+                        input.required = shouldShow && isInitiallyRequired;
+                    } else {
+                        input.required = false; // Never require if hidden
+                    }
                 });
 
                 dependentElements.forEach(dep => {
                     if(dep.element){
                         dep.element.classList.toggle(dep.classToToggle || 'hidden', !shouldShow);
                         if (dep.toggleRequired) {
-                            dep.element.querySelectorAll('input[data-initially-required="true"], select[data-initially-required="true"], textarea[data-initially-required="true"]').forEach(input => {
-                                if (!input.closest('.hidden')) { input.required = shouldShow; }
+                            dep.element.querySelectorAll('input, select, textarea').forEach(input => {
+                                 const isInitiallyRequired = input.dataset.initiallyRequired === 'true';
+                                if (!input.closest('.hidden')) { input.required = shouldShow && isInitiallyRequired; }
                                 else { input.required = false; }
                             });
                         }
@@ -467,69 +336,61 @@ document.addEventListener('DOMContentLoaded', async () => { // Make top-level as
         elements.forEach(element => { element.addEventListener('change', checkVisibility); });
         checkVisibility(); // Initial check
     }
-    // Setup specific conditions (ensure elements exist first)
-    const nsApplicableCheckbox = document.getElementById('ns-applicable');
-    const nsDetailsContainer = document.getElementById('ns-details-container');
-    if(nsApplicableCheckbox && nsDetailsContainer) setupConditionalVisibility(nsApplicableCheckbox, nsDetailsContainer, (elements) => elements[0].checked);
 
-    const prevMarriageCheckbox = document.getElementById('prev-marriage-applicable');
-    const prevMarriageContainer = document.getElementById('prev-marriage-container');
-    const addPrevMarriageButton = document.getElementById('add-prev-marriage');
-    const prevChildrenSection = document.getElementById('section-prev-children');
-    if(prevMarriageCheckbox && prevMarriageContainer && addPrevMarriageButton && prevChildrenSection) setupConditionalVisibility(prevMarriageCheckbox, prevMarriageContainer, (elements) => elements[0].checked, [{ element: addPrevMarriageButton, classToToggle: 'hidden' }, { element: prevChildrenSection, classToToggle: 'hidden', toggleRequired: true }]);
+    // Specific function to re-run checks after loading draft
+    function triggerInitialConditionalChecks() {
+        console.log("Triggering initial conditional visibility checks...");
+        // Use querySelectorAll to find triggers and dispatch change event
+        document.querySelectorAll('#ns-applicable, #prev-marriage-applicable, input[name="applicant_other_citizenship"]').forEach(input => {
+            if (input) input.dispatchEvent(new Event('change', { bubbles: true }));
+         });
+         triggerInitialEmploymentCheck(); // For nested conditions
+    }
 
-    const otherCitizenshipRadio = form ? form.querySelectorAll('input[name="applicant_other_citizenship"]') : null;
-    const otherCitizenshipDetails = document.getElementById('other-citizenship-details');
-    if(otherCitizenshipRadio && otherCitizenshipRadio.length > 0 && otherCitizenshipDetails) setupConditionalVisibility(otherCitizenshipRadio, otherCitizenshipDetails, (elements) => elements.some(radio => radio.checked && radio.value === 'Yes'));
-
-    // Event delegation for previous child employment
-    const prevChildrenContainer = document.getElementById('prev-children-container');
-    if(prevChildrenContainer) {
-         prevChildrenContainer.addEventListener('change', (event) => {
-             if (event.target.matches('input[type="radio"][name^="prev_child"][name$="[employed]"]')) {
-                 const fieldset = event.target.closest('fieldset.repeatable-item');
-                 if (!fieldset) return;
-                 const detailsDiv = fieldset.querySelector('div[data-condition*="[employed]"]'); // Use data-condition selector
-                 if (detailsDiv) {
-                     const shouldShow = event.target.checked && event.target.value === 'Yes';
-                     detailsDiv.classList.toggle('hidden', !shouldShow);
-                     // Find the textarea within this conditional div and toggle required
-                     const textarea = detailsDiv.querySelector('textarea');
-                     if (textarea) {
-                         textarea.required = shouldShow;
-                     }
-                 }
+     // Specific function for nested employment check
+    const triggerInitialEmploymentCheck = () => {
+         const container = document.getElementById('prev-children-container');
+         if(!container) return;
+         container.querySelectorAll('input[type="radio"][name^="prev_child"][name$="[employed]"]:checked').forEach(radio => {
+             const fieldset = radio.closest('fieldset.repeatable-item');
+             if (!fieldset) return;
+             const detailsDiv = fieldset.querySelector('div[data-condition*="[employed]"]');
+             if (detailsDiv) {
+                 const shouldShow = radio.value === 'Yes';
+                 detailsDiv.classList.toggle('hidden', !shouldShow);
+                 const textarea = detailsDiv.querySelector('textarea');
+                 if(textarea) textarea.required = shouldShow;
              }
          });
-     }
+    };
 
     // --- Repeatable Sections Logic ---
-    // (Ensure data-initially-required="true" is added to required fields in templates)
+    // Helper to update numbering and remove buttons for a specific group
+    function updateRepeatableItemsUI(container, groupName) {
+        if(!container) return;
+        const items = container.querySelectorAll(`.repeatable-item[data-group="${groupName}"]`);
+        items.forEach((item, index) => {
+            const removeButton = item.querySelector('.remove-item-button');
+            if (removeButton) { removeButton.classList.toggle('hidden', items.length <= 1 && !item.dataset.canBeEmpty); }
+            const legend = item.querySelector('legend');
+            if (legend) { legend.textContent = legend.textContent.replace(/#|\d+/, `${index + 1}`); }
+             // Update IDs/Fors containing placeholder (use #)
+             item.querySelectorAll(`[id*="-#"], label[for*="-#"]`).forEach(el => {
+                 if (el.id) el.id = el.id.replace(`#`, `${index + 1}`);
+                 if (el.htmlFor) el.htmlFor = el.htmlFor.replace(`#`, `${index + 1}`);
+             });
+            // Update names containing placeholder [#]
+            item.querySelectorAll(`[name*="[#]"]`).forEach(input => {
+                input.name = input.name.replace('[#]', `[${index + 1}]`);
+            });
+        });
+    }
+
     function setupRepeatable(containerId, addButtonId, templateId, groupName) {
         const container = document.getElementById(containerId);
         const addButton = document.getElementById(addButtonId);
         const template = document.getElementById(templateId);
-        if (!container || !addButton || !template) { console.warn(`Setup failed for repeatable section: Missing elements for ${groupName} (Container: ${containerId}, Button: ${addButtonId}, Template: ${templateId})`); return; }
-
-        const updateItemsUI = () => { // Updates numbering and remove button visibility
-             const items = container.querySelectorAll(`.repeatable-item[data-group="${groupName}"]`);
-             items.forEach((item, index) => {
-                 const removeButton = item.querySelector('.remove-item-button');
-                 if (removeButton) { removeButton.classList.toggle('hidden', items.length <= 1 && !item.dataset.canBeEmpty); } // Hide if only one left
-                 const legend = item.querySelector('legend');
-                 if (legend) { legend.textContent = legend.textContent.replace(/#|\d+/, `${index + 1}`); } // Update legend number
-                 // Update IDs/Fors containing placeholder
-                 item.querySelectorAll(`[id*="-${groupName}-#-"], label[for*="-${groupName}-#-"]`).forEach(el => {
-                     if (el.id) el.id = el.id.replace(`-${groupName}-#-`, `-${groupName}-${index + 1}-`);
-                     if (el.htmlFor) el.htmlFor = el.htmlFor.replace(`-${groupName}-#-`, `-${groupName}-${index + 1}-`);
-                 });
-                 // Update names containing placeholder
-                 item.querySelectorAll(`[name*="[#]"]`).forEach(input => {
-                     input.name = input.name.replace('[#]', `[${index + 1}]`);
-                 });
-             });
-        };
-
+        if (!container || !addButton || !template) { console.warn(`Setup failed for repeatable section: Missing elements for ${groupName}`); return; }
 
         addButton.addEventListener('click', () => {
             const clone = template.content.cloneNode(true);
@@ -537,127 +398,301 @@ document.addEventListener('DOMContentLoaded', async () => { // Make top-level as
             if (!newItem) { console.error(`Template ${templateId} missing .repeatable-item.`); return; }
             newItem.dataset.group = groupName; // Ensure group name is set
 
-            // Add remove listener to the new button *before* appending
             const removeButton = newItem.querySelector('.remove-item-button');
             if (removeButton) {
-                removeButton.addEventListener('click', (e) => {
-                    e.target.closest('.repeatable-item').remove();
-                    updateItemsUI(); // Update visibility and numbering after removing
-                });
+                removeButton.addEventListener('click', (e) => { e.target.closest('.repeatable-item').remove(); updateRepeatableItemsUI(container, groupName); });
             } else { console.warn(`Template ${templateId} missing .remove-item-button`); }
 
             container.appendChild(newItem); // Add to DOM
-            updateItemsUI(); // Update numbering/buttons for all items
+            updateRepeatableItemsUI(container, groupName); // Update numbering/buttons for all items
 
             // Trigger initial conditional checks within the newly added item
              newItem.querySelectorAll('input[type="radio"], input[type="checkbox"]').forEach(input => {
                  input.dispatchEvent(new Event('change', { bubbles: true }));
              });
-             // Re-apply any specific logic needed for new items if necessary
         });
 
         // Add remove listeners to initially present buttons
         container.querySelectorAll(`.repeatable-item[data-group="${groupName}"] .remove-item-button`).forEach(button => {
-             if (!button.dataset.listenerAttached) { // Prevent adding multiple listeners on load/reload
-                 button.addEventListener('click', (e) => {
-                     e.target.closest('.repeatable-item').remove();
-                     updateItemsUI();
-                 });
+             if (!button.dataset.listenerAttached) {
+                 button.addEventListener('click', (e) => { e.target.closest('.repeatable-item').remove(); updateRepeatableItemsUI(container, groupName); });
                  button.dataset.listenerAttached = 'true';
              }
          });
-        updateItemsUI(); // Initial setup for numbering and remove buttons
+        updateRepeatableItemsUI(container, groupName); // Initial setup
     }
-    // Setup All Repeatable Sections
-    setupRepeatable('siblings-container', 'add-sibling', 'sibling-template', 'sibling');
-    setupRepeatable('education-container', 'add-education', 'education-template', 'education');
-    setupRepeatable('employment-container', 'add-employment', 'employment-template', 'employment');
-    setupRepeatable('absence-container', 'add-absence', 'absence-template', 'absence');
-    setupRepeatable('passport-container', 'add-passport', 'passport-template', 'passport');
-    setupRepeatable('prev-marriage-container', 'add-prev-marriage', 'prev-marriage-template', 'prev_marriage');
-    setupRepeatable('prev-children-container', 'add-prev-child', 'prev-child-template', 'prev_child');
-
 
     // --- Form Submission Validation ---
-    if (form) {
-        form.addEventListener('submit', (e) => {
-            console.log("Form submit event triggered."); // Log submit start
-            let firstInvalid = null;
-            // Check only inputs within the form container that are required
-            formContainer.querySelectorAll('input[required], select[required], textarea[required]').forEach(input => {
-                 // Check if the element or its parent section is hidden
-                const parentSection = input.closest('.form-section, .fieldset-group'); // Check fieldset group too for nested conditionals
-                let isHidden = input.closest('.hidden') || (parentSection && parentSection.classList.contains('hidden'));
-
-                // Additional check for computed style display none (more robust)
-                 if(!isHidden && window.getComputedStyle(input).display === 'none'){
-                     isHidden = true;
-                 }
-                 // Check parent visibility too
-                 let currentElement = input.parentElement;
-                 while(currentElement && currentElement !== formContainer){
-                     if(window.getComputedStyle(currentElement).display === 'none'){
-                         isHidden = true;
-                         break;
-                     }
-                     currentElement = currentElement.parentElement;
-                 }
-
-
-                if (!isHidden && !input.validity.valid) {
-                    if (!firstInvalid) firstInvalid = input;
-                    console.warn("Invalid field:", input.name, input.validationMessage, input);
-                    input.style.border = '2px solid red';
-                    input.style.backgroundColor = '#ffeeee'; // Highlight background
-                } else {
-                    // Reset style if valid or hidden
+    function setupFormSubmit() {
+        if (form) {
+            form.addEventListener('submit', (e) => {
+                console.log("Form submit event triggered.");
+                let firstInvalid = null;
+                // Check elements required that are VISIBLE
+                form.querySelectorAll('input[required], select[required], textarea[required]').forEach(input => {
+                    // Reset previous styles
                     input.style.border = '';
                     input.style.backgroundColor = '';
+
+                    // Check if element or ancestor is hidden or display:none
+                    let isHidden = false;
+                    let currentElement = input;
+                    while (currentElement && currentElement !== document.body) {
+                        if (currentElement.classList.contains('hidden') || window.getComputedStyle(currentElement).display === 'none' || window.getComputedStyle(currentElement).visibility === 'hidden') {
+                            isHidden = true;
+                            break;
+                        }
+                        // Check offsetParent as a reliable visibility check
+                        if(currentElement.offsetParent === null && currentElement !== document.body) {
+                            // Only consider truly hidden, not just temporarily off-screen due to scroll
+                            const rect = currentElement.getBoundingClientRect();
+                            if (rect.width === 0 && rect.height === 0) {
+                                isHidden = true;
+                                break;
+                            }
+                        }
+                        currentElement = currentElement.parentElement;
+                    }
+
+                    if (!isHidden && !input.validity.valid) {
+                        if (!firstInvalid) firstInvalid = input;
+                        console.warn("Invalid field:", input.name, input.validationMessage, input);
+                        input.style.border = '2px solid red';
+                        input.style.backgroundColor = '#ffeeee';
+                    }
+                });
+
+                if (firstInvalid) {
+                    e.preventDefault();
+                    const fieldLabel = firstInvalid.labels.length > 0 ? firstInvalid.labels[0].innerText.replace('*','').trim() : '';
+                    const fieldName = fieldLabel || `Field named '${firstInvalid.name}'`;
+                    alert(`Please fill out the required field: ${fieldName}`);
+
+                    const section = firstInvalid.closest('.form-section');
+                    if (section && formContainer) {
+                         section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                         setTimeout(() => { try { firstInvalid.focus(); } catch(err){} }, 300);
+                     } else {
+                          try { firstInvalid.focus(); } catch(err){}
+                     }
+                    console.log("Form submission prevented due to validation errors.");
+                } else {
+                    console.log("Form seems valid client-side, attempting to submit to Netlify...");
+                    const draftKey = getDraftKey();
+                    if (currentUserId !== 'anonymous') {
+                        localStorage.removeItem(draftKey);
+                        console.log("Draft cleared:", draftKey);
+                    }
+                    const submitButton = form.querySelector('button[type="submit"]');
+                    if (submitButton) {
+                        submitButton.disabled = true;
+                        submitButton.textContent = 'Submitting...';
+                    }
                 }
             });
-
-            if (firstInvalid) {
-                e.preventDefault(); // Prevent submission
-                const fieldLabel = firstInvalid.labels.length > 0 ? firstInvalid.labels[0].innerText.replace('*','').trim() : '';
-                const fieldName = fieldLabel || `Field named '${firstInvalid.name}'`;
-                alert(`Please fill out the required field: ${fieldName}`);
-
-                const section = firstInvalid.closest('.form-section');
-                if (section && formContainer) {
-                     // Scroll section into view first
-                     section.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                     // Then try focusing - slight delay might help after scroll
-                     setTimeout(() => {
-                         try { firstInvalid.focus(); } catch(err){}
-                     }, 300); // Delay focus slightly
-                 } else {
-                      try { firstInvalid.focus(); } catch(err){} // Fallback focus
-                 }
-                console.log("Form submission prevented due to validation errors.");
-            } else {
-                console.log("Form seems valid client-side, attempting to submit to Netlify...");
-                const draftKey = getDraftKey();
-                if(currentUserId !== 'anonymous') { // Only clear draft if logged in
-                    localStorage.removeItem(draftKey);
-                    console.log("Draft cleared:", draftKey);
-                }
-                const submitButton = form.querySelector('button[type="submit"]');
-                if (submitButton) {
-                    submitButton.disabled = true;
-                    submitButton.textContent = 'Submitting...';
-                }
-            }
-        });
-    } else {
-         console.error("Form element not found! Cannot add submit listener.");
+        } else {
+            console.error("Form element not found! Cannot add submit listener.");
+        }
     }
 
 
-    // --- Initial UI Update ---
-    // This is called last, after potential callback handling and setting up all functions/listeners
-    console.log("Performing initial UI update...");
-    await updateUI(); // Checks auth state, updates buttons/form visibility, loads draft if logged in.
-    console.log("Initial UI update complete.");
-    setActiveLink(); // Set initial active link after UI is potentially visible
+    // ==================================
+    //  Initialization Orchestration
+    // ==================================
+
+    // --- Function to Initialize Auth0 and the rest of the app ---
+    async function initializeApp() {
+        console.log("Attempting to initialize Auth0 client inside initializeApp...");
+        // Note: auth0 should be defined by now if waitForAuth0Sdk succeeded
+        if (!auth0) {
+            console.error("initializeApp called but auth0 client is still null.");
+            if (authLoadingElement) authLoadingElement.textContent = "Fatal error during authentication setup.";
+            if (bodyElement) bodyElement.classList.remove('loading');
+            return;
+        }
+
+        // --- Handle Redirect Callback ---
+         if (window.location.search.includes("code=") && window.location.search.includes("state=")) {
+             console.log("Detected Auth0 callback parameters.");
+             try {
+                 console.log("Attempting handleRedirectCallback...");
+                 await auth0.handleRedirectCallback();
+                 console.log("Handled redirect callback.");
+                 console.log("Cleaning URL parameters.");
+                 window.history.replaceState({}, document.title, window.location.pathname);
+             } catch (e) {
+                 console.error("Error handling redirect callback:", e);
+             }
+         } else {
+             console.log("No Auth0 callback parameters detected.");
+         }
+
+        // --- Setup Event Listeners ---
+        setupEventListeners();
+
+        // --- Setup Other App Logic ---
+        setupConditionalLogic(); // Setup show/hide logic for sections
+        setupRepeatables(); // Setup add/remove for repeatable sections
+        setupNavigation(); // Setup side navigation scrolling/highlighting
+        setupFormSubmit(); // Setup form validation on submit
+
+        // --- Initial UI Update & Draft Load ---
+        console.log("Performing initial UI update...");
+        await updateUI(); // Update UI based on auth state (loads draft if logged in)
+        console.log("Initial UI update complete.");
+
+    }
+
+    // --- Function to Check if Auth0 SDK is ready ---
+    function waitForAuth0Sdk(callback, maxAttempts = 20, interval = 150) { // Slightly increased interval
+        let attempts = 0;
+        const check = () => {
+            const sdkFunctionAvailable = typeof createAuth0Client === 'function';
+            console.log(`Checking for createAuth0Client, attempt ${attempts + 1}... Type: ${typeof createAuth0Client}, Available: ${sdkFunctionAvailable}`);
+
+            if (sdkFunctionAvailable) {
+                console.log("createAuth0Client found!");
+                callback(); // SDK ready, proceed with initialization
+            } else {
+                attempts++;
+                if (attempts < maxAttempts) {
+                    setTimeout(check, interval); // Check again shortly
+                } else {
+                    console.error(`Auth0 SDK (createAuth0Client) not found after ${maxAttempts} attempts.`);
+                    if (authLoadingElement) authLoadingElement.textContent = "Error loading authentication library. Please check Network tab or refresh.";
+                    if (bodyElement) bodyElement.classList.remove('loading'); // Stop loading state
+                }
+            }
+        };
+        check(); // Start checking
+    }
+
+
+     // --- Define Setup Functions (Called by initializeApp) ---
+     function setupEventListeners() {
+         console.log("Setting up event listeners...");
+         if (btnLogin) { btnLogin.addEventListener('click', login); } else { console.error("Login button not found"); }
+         if (btnLogout) { btnLogout.addEventListener('click', logout); } else { console.error("Logout button not found"); }
+         // Note: Save button listener is added directly as it depends on draftKey logic tied to auth state
+     }
+
+     function setupConditionalLogic() {
+        console.log("Setting up conditional logic...");
+        // Setup specific conditions (ensure elements exist first)
+        const nsApplicableCheckbox = document.getElementById('ns-applicable');
+        const nsDetailsContainer = document.getElementById('ns-details-container');
+        if(nsApplicableCheckbox && nsDetailsContainer) setupConditionalVisibility(nsApplicableCheckbox, nsDetailsContainer, (elements) => elements[0].checked);
+
+        const prevMarriageCheckbox = document.getElementById('prev-marriage-applicable');
+        const prevMarriageContainer = document.getElementById('prev-marriage-container');
+        const addPrevMarriageButton = document.getElementById('add-prev-marriage');
+        const prevChildrenSection = document.getElementById('section-prev-children');
+        if(prevMarriageCheckbox && prevMarriageContainer && addPrevMarriageButton && prevChildrenSection) setupConditionalVisibility(prevMarriageCheckbox, prevMarriageContainer, (elements) => elements[0].checked, [{ element: addPrevMarriageButton, classToToggle: 'hidden' }, { element: prevChildrenSection, classToToggle: 'hidden', toggleRequired: true }]);
+
+        const otherCitizenshipRadio = form ? form.querySelectorAll('input[name="applicant_other_citizenship"]') : null;
+        const otherCitizenshipDetails = document.getElementById('other-citizenship-details');
+        if(otherCitizenshipRadio && otherCitizenshipRadio.length > 0 && otherCitizenshipDetails) setupConditionalVisibility(otherCitizenshipRadio, otherCitizenshipDetails, (elements) => elements.some(radio => radio.checked && radio.value === 'Yes'));
+
+        // Event delegation for previous child employment
+        const prevChildrenContainer = document.getElementById('prev-children-container');
+        if(prevChildrenContainer) {
+             prevChildrenContainer.addEventListener('change', (event) => {
+                 if (event.target.matches('input[type="radio"][name^="prev_child"][name$="[employed]"]')) {
+                     const fieldset = event.target.closest('fieldset.repeatable-item');
+                     if (!fieldset) return;
+                     const detailsDiv = fieldset.querySelector('div[data-condition*="[employed]"]');
+                     if (detailsDiv) {
+                         const shouldShow = event.target.checked && event.target.value === 'Yes';
+                         detailsDiv.classList.toggle('hidden', !shouldShow);
+                         const textarea = detailsDiv.querySelector('textarea');
+                         if(textarea) textarea.required = shouldShow;
+                     }
+                 }
+             });
+         }
+     }
+
+     function setupRepeatables() {
+        console.log("Setting up repeatable sections...");
+         // Setup All Repeatable Sections
+         setupRepeatable('siblings-container', 'add-sibling', 'sibling-template', 'sibling');
+         setupRepeatable('education-container', 'add-education', 'education-template', 'education');
+         setupRepeatable('employment-container', 'add-employment', 'employment-template', 'employment');
+         setupRepeatable('absence-container', 'add-absence', 'absence-template', 'absence');
+         setupRepeatable('passport-container', 'add-passport', 'passport-template', 'passport');
+         setupRepeatable('prev-marriage-container', 'add-prev-marriage', 'prev-marriage-template', 'prev_marriage');
+         setupRepeatable('prev-children-container', 'add-prev-child', 'prev-child-template', 'prev_child');
+     }
+
+     function setupNavigation() {
+         console.log("Setting up navigation...");
+         if(formContainer) formContainer.addEventListener('scroll', setActiveLink);
+          sideNavLinks.forEach(link => {
+             link.addEventListener('click', (e) => {
+                 e.preventDefault();
+                 const targetId = link.getAttribute('href');
+                 const targetSection = document.querySelector(targetId);
+                 if (targetSection && formContainer) {
+                     if(targetSection.offsetParent !== null) {
+                         formContainer.scrollTo({ top: targetSection.offsetTop - 10, behavior: 'smooth' });
+                         sideNavLinks.forEach(l => l.classList.remove('active'));
+                         link.classList.add('active');
+                      } else { console.warn(`Nav target section ${targetId} not visible.`); }
+                 } else { console.warn(`Nav target ${targetId} or form container not found.`); }
+             });
+         });
+         setActiveLink(); // Initial call
+     }
+
+     function setupFormSubmit() {
+         console.log("Setting up form submit listener...");
+         // The submit listener logic is defined within this function in the previous combined version,
+         // so just ensure that logic is correctly placed here or called from here.
+         // The code for the submit listener provided before is already self-contained.
+         if (form) {
+             form.addEventListener('submit', (e) => {
+                 // PASTE THE FORM SUBMIT VALIDATION LOGIC HERE (from previous response)
+                console.log("Form submit event triggered.");
+                let firstInvalid = null;
+                formContainer.querySelectorAll('input[required], select[required], textarea[required]').forEach(input => {
+                    input.style.border = ''; input.style.backgroundColor = ''; // Reset styles
+                    let isHidden = false; let currentElement = input;
+                    while (currentElement && currentElement !== document.body) {
+                        if (currentElement.classList.contains('hidden') || window.getComputedStyle(currentElement).display === 'none' || window.getComputedStyle(currentElement).visibility === 'hidden') { isHidden = true; break; }
+                        if(currentElement.offsetParent === null && currentElement !== document.body) { const rect = currentElement.getBoundingClientRect(); if (rect.width === 0 && rect.height === 0) { isHidden = true; break; } }
+                        currentElement = currentElement.parentElement;
+                    }
+                    if (!isHidden && !input.validity.valid) {
+                        if (!firstInvalid) firstInvalid = input;
+                        console.warn("Invalid field:", input.name, input.validationMessage, input);
+                        input.style.border = '2px solid red'; input.style.backgroundColor = '#ffeeee';
+                    }
+                });
+
+                if (firstInvalid) {
+                    e.preventDefault();
+                    const fieldLabel = firstInvalid.labels.length > 0 ? firstInvalid.labels[0].innerText.replace('*','').trim() : '';
+                    const fieldName = fieldLabel || `Field named '${firstInvalid.name}'`;
+                    alert(`Please fill out the required field: ${fieldName}`);
+                    const section = firstInvalid.closest('.form-section');
+                    if (section && formContainer) {
+                         section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                         setTimeout(() => { try { firstInvalid.focus(); } catch(err){} }, 300);
+                     } else { try { firstInvalid.focus(); } catch(err){} }
+                    console.log("Form submission prevented due to validation errors.");
+                } else {
+                    console.log("Form seems valid client-side, attempting to submit to Netlify...");
+                    const draftKey = getDraftKey();
+                    if (currentUserId !== 'anonymous') { localStorage.removeItem(draftKey); console.log("Draft cleared:", draftKey); }
+                    const submitButton = form.querySelector('button[type="submit"]');
+                    if (submitButton) { submitButton.disabled = true; submitButton.textContent = 'Submitting...'; }
+                }
+             }); // End submit listener callback
+         } else { console.error("Form element not found! Cannot add submit listener."); }
+     } // End setupFormSubmit function
+
+
+    // --- Start the application ---
+    waitForAuth0Sdk(initializeApp); // Wait for SDK then initialize the app
 
 }); // End DOMContentLoaded
