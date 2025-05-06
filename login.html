@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - E&H Immigration Portal</title>
+    <link rel="stylesheet" href="style.css"> <!-- Optional shared styles -->
+    <style>
+        body { display: flex; justify-content: center; align-items: center; min-height: 80vh; flex-direction: column; }
+        .login-box { text-align: center; padding: 30px; border: 1px solid #ccc; border-radius: 8px; background-color: #f9f9f9; }
+        .button { padding: 12px 25px; font-size: 1.1em; cursor: pointer; border: none; border-radius: 5px; }
+        .login-button { background-color: #007bff; color: white; }
+        .login-button:hover { background-color: #0056b3; }
+        #error-message { color: red; margin-top: 15px; }
+    </style>
+
+    <!-- 1. Import Map -->
+    <script type="importmap">
+      {
+        "imports": {
+          "@auth0/auth0-spa-js": "https://cdn.jsdelivr.net/npm/@auth0/auth0-spa-js@2.1.3/dist/auth0-spa-js.production.esm.js",
+          "./auth0_config.js": "./auth0_config.js"
+        }
+      }
+    </script>
+
+</head>
+<body>
+
+    <div class="login-box">
+        <h1>E&H Immigration Portal</h1>
+        <p>Please log in or sign up to continue.</p>
+        <button id="btn-login" class="button login-button">Log In / Sign Up</button>
+        <p id="error-message" style="display: none;"></p>
+    </div>
+
+    <!-- 2. Module Script for Login Page -->
+    <script type="module" src="login.js"></script>
+
+</body>
+</html>
