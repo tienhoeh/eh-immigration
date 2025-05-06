@@ -3,59 +3,108 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - E&H Immigration Portal</title>
-    <!-- Link to the main style.css first -->
-    <link rel="stylesheet" href="style.css">
+    <title>Login - E&H Immigration Consultancy Portal</title>
+    <!-- Link to the main style.css first (optional, if login shares styles) -->
+    <!-- <link rel="stylesheet" href="style.css"> -->
     <!-- Specific styles for the login page -->
     <style>
-        /* Center the login box */
+        /* Apply background to the whole page */
         body.login-page {
+            margin: 0; /* Remove default body margin */
+            padding: 0; /* Remove default body padding */
+            /* Background Image Settings */
+            background-image: url('images/Skyline of Marina Bay Singapore 2.jpeg');
+            background-size: cover; /* Cover the entire viewport */
+            background-position: center center; /* Center the image */
+            background-repeat: no-repeat; /* Do not repeat */
+            background-attachment: fixed; /* Keep background fixed during scroll */
+            min-height: 100vh; /* Ensure body takes full viewport height */
+
+            /* Flexbox to center the login box */
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 90vh; /* Use viewport height */
-            background-color: #f4f4f4; /* Optional background */
-            padding: 20px; /* Add some padding */
-            box-sizing: border-box; /* Include padding in height calculation */
+            font-family: sans-serif; /* Basic font */
+            box-sizing: border-box;
         }
+
+        /* Add a subtle overlay effect for readability if needed */
+        body.login-page::before {
+            content: '';
+            position: fixed; /* Cover viewport */
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.3); /* Dark semi-transparent overlay */
+            /* Or use a white overlay: background-color: rgba(255, 255, 255, 0.3); */
+            z-index: 1; /* Place overlay above background but below login box */
+        }
+
         .login-box {
+            position: relative; /* Needed to position above the pseudo-element overlay */
+            z-index: 2; /* Ensure login box is above the overlay */
             text-align: center;
-            padding: 40px; /* More padding */
-            border: 1px solid #ccc;
+            padding: 40px 50px; /* More padding */
             border-radius: 8px;
-            background-color: #fff; /* White background */
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* Add subtle shadow */
-            max-width: 400px; /* Limit width */
-            width: 100%;
+            background-color: rgba(255, 255, 255, 0.95); /* Slightly transparent white background */
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2); /* Enhanced shadow */
+            max-width: 420px; /* Limit width */
+            width: 90%; /* Responsive width */
         }
         .login-box img {
-            max-width: 150px; /* Adjust logo size */
-            margin-bottom: 20px; /* Space below logo */
+            max-width: 130px; /* Adjust logo size */
+            height: auto; /* Maintain aspect ratio */
+            margin-bottom: 25px; /* Space below logo */
         }
          .login-box h1 {
-            margin-bottom: 10px;
-            font-size: 1.8em;
-            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.7em; /* Adjust size */
+            color: #2c3e50; /* Darker heading */
+            font-weight: 600;
          }
          .login-box p {
-             margin-bottom: 25px;
+             margin-bottom: 30px;
              color: #555;
+             font-size: 1.0em;
          }
-        /* Use button styles from main style.css if defined, or override */
+        /* General button class from main styles (ensure it exists if link removed) */
+         .button {
+            display: inline-block;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            margin-top: 10px;
+            margin-right: 5px;
+            transition: background-color 0.2s ease, opacity 0.2s ease;
+            vertical-align: middle;
+            text-decoration: none; /* For potential <a> tags styled as buttons */
+         }
+         .button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+         }
+         /* Specific login button styling */
         .button.login-button {
-            padding: 12px 25px;
+            padding: 12px 30px; /* Make button prominent */
             font-size: 1.1em;
-            background-color: #337ab7; /* Use main submit color */
+            font-weight: 600;
+            background-color: #006837; /* Dark green matching typical logo color */
             color: white;
             border: none; /* Ensure no default border */
+            width: 100%; /* Make button full width of box */
+            box-sizing: border-box; /* Include padding in width */
         }
-        .button.login-button:hover {
-            background-color: #286090; /* Darker shade on hover */
+        .button.login-button:hover:not(:disabled) {
+            background-color: #004d28; /* Darker green on hover */
         }
         #error-message {
-            color: red;
+            color: #d9534f; /* Use error red color */
             margin-top: 15px;
             font-size: 0.9em;
+            font-weight: bold;
         }
     </style>
 
@@ -74,11 +123,14 @@
 <body class="login-page">
 
     <div class="login-box">
-        <!-- Add Logo Here -->
-        <img src="images/logo.png" alt="E&H Immigration Logo">
+        <!-- Updated Logo Path -->
+        <img src="images/EH_logo.png" alt="E&H Immigration Consultancy Logo">
 
-        <h1>E&H Immigration Portal</h1>
+        <!-- Updated Heading Text -->
+        <h1>E&H Immigration Consultancy Portal</h1>
+
         <p>Please log in or sign up to continue.</p>
+        <!-- Button color updated via CSS above -->
         <button id="btn-login" class="button login-button">Log In / Sign Up</button>
         <p id="error-message" style="display: none;"></p>
     </div>
