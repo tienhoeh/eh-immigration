@@ -1,37 +1,113 @@
-<!-- sections/section-employment.html -->
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Employment History</title>
-    <link rel="stylesheet" href="/css/style.css">
-    <style> body { padding: 20px; background-color: #fff; } </style>
+    <link rel="stylesheet" href="/css/style.css"> <!-- Link to main stylesheet -->
+    <style>
+        body { padding: 20px 30px; background-color: #fff; }
+        /* Ensure text areas have reasonable height */
+        textarea[name*="title_responsibilities"] { min-height: 80px; }
+        small { display: block; font-size: 0.8em; color: #666; margin-top: 3px; }
+    </style>
 </head>
 <body>
     <section id="section-employment" class="form-section">
-        <h2>Applicant's Full Employment History</h2>
-        <p>List all full-time employment since beginning of career.</p>
-        <div id="employment-container">
-            <fieldset class="repeatable-item fieldset-group" data-group="employment">
-                <legend>Employment Record 1</legend>
-                <button type="button" class="remove-item-button hidden">Remove Record</button>
-                <div class="form-grid">
-                    <!-- ALL fields for the first employment record -->
-                    <div class="form-group"> <label>Date Joined (MM/YYYY) *</label> <input type="month" name="employment[1][joined]" required data-initially-required="true"> </div>
-                    </div>
-            </fieldset>
-        </div>
-        <button type="button" id="add-employment" class="button add-button">Add Employment Record</button>
+         <h2>Applicant's Full Employment History</h2>
+         <p>List all full-time employment since beginning of career.</p>
+         <div id="employment-container">
+             <!-- Initial Employment Item (Record 1) -->
+             <fieldset class="repeatable-item fieldset-group" data-group="employment">
+                 <legend>Employment Record 1</legend>
+                 <button type="button" class="remove-item-button hidden">Remove Record</button>
+                 <div class="form-grid">
+                     <div class="form-group">
+                         <label for="employment-1-joined">Date Joined (MM/YYYY) *</label>
+                         <input type="month" id="employment-1-joined" name="employment[1][joined]" required data-initially-required="true">
+                     </div>
+                     <div class="form-group">
+                         <label for="employment-1-leaving">Date of Leaving (MM/YYYY) *</label>
+                         <input type="month" id="employment-1-leaving" name="employment[1][leaving]" required data-initially-required="true">
+                         <label style="font-weight: normal; margin-top: 5px;"><input type="checkbox" name="employment[1][current_job]" value="yes"> Currently employed here</label>
+                     </div>
+                     <div class="form-group full-width">
+                         <label for="employment-1-company_industry">Company Name & Business Industry *</label>
+                         <input type="text" id="employment-1-company_industry" name="employment[1][company_industry]" required data-initially-required="true" placeholder="e.g., ABC Corp / IT Services or NA">
+                     </div>
+                     <div class="form-group full-width">
+                         <label for="employment-1-address">Company Full Address *</label>
+                         <input type="text" id="employment-1-address" name="employment[1][address]" required data-initially-required="true" placeholder="Enter full address or NA">
+                     </div>
+                     <div class="form-group full-width">
+                         <label for="employment-1-title_responsibilities">Occupation Title & List 3 responsibilities *</label>
+                         <textarea id="employment-1-title_responsibilities" name="employment[1][title_responsibilities]" rows="4" required data-initially-required="true" placeholder="Enter title and main duties or NA"></textarea>
+                     </div>
+                     <div class="form-group">
+                         <label for="employment-1-salary">Basic and Gross Salary (Upon Leaving) *</label>
+                         <input type="text" id="employment-1-salary" name="employment[1][salary]" required data-initially-required="true" placeholder="e.g., SGD 5000 or NA">
+                         <small>(Enter current salary if still employed)</small>
+                     </div>
+                     <div class="form-group">
+                         <label for="employment-1-supervision_count">No. of Staff under your supervision? *</label>
+                         <input type="number" id="employment-1-supervision_count" name="employment[1][supervision_count]" required data-initially-required="true" min="0" value="0" placeholder="Enter number (e.g., 0)">
+                     </div>
+                     <div class="form-group">
+                         <label for="employment-1-company_size">Total No. of Company Staff? *</label>
+                         <input type="text" id="employment-1-company_size" name="employment[1][company_size]" required data-initially-required="true" placeholder="e.g., 50-100, 500+, or NA">
+                     </div>
+                 </div>
+             </fieldset>
+         </div> <!-- End #employment-container -->
+
+         <button type="button" id="add-employment" class="button add-button">Add Employment Record</button>
     </section>
+
+    <!-- Template for NEW Employment Records -->
     <template id="employment-template">
         <fieldset class="repeatable-item fieldset-group" data-group="employment">
             <legend>Employment Record #</legend>
             <button type="button" class="remove-item-button">Remove Record</button>
             <div class="form-grid">
-                <!-- ALL fields for a NEW employment record, using name="employment[#][...]" -->
-                <div class="form-group"> <label>Date Joined (MM/YYYY) *</label> <input type="month" name="employment[#][joined]" required data-initially-required="true"> </div>
-                </div>
+                 <div class="form-group">
+                     <label>Date Joined (MM/YYYY) *</label>
+                     <input type="month" name="employment[#][joined]" required data-initially-required="true">
+                 </div>
+                 <div class="form-group">
+                     <label>Date of Leaving (MM/YYYY) *</label>
+                     <input type="month" name="employment[#][leaving]" required data-initially-required="true">
+                     <label style="font-weight: normal; margin-top: 5px;"><input type="checkbox" name="employment[#][current_job]" value="yes"> Currently employed here</label>
+                 </div>
+                 <div class="form-group full-width">
+                     <label>Company Name & Business Industry *</label>
+                     <input type="text" name="employment[#][company_industry]" required data-initially-required="true" placeholder="e.g., ABC Corp / IT Services or NA">
+                 </div>
+                 <div class="form-group full-width">
+                     <label>Company Full Address *</label>
+                     <input type="text" name="employment[#][address]" required data-initially-required="true" placeholder="Enter full address or NA">
+                 </div>
+                 <div class="form-group full-width">
+                     <label>Occupation Title & List 3 responsibilities *</label>
+                     <textarea name="employment[#][title_responsibilities]" rows="4" required data-initially-required="true" placeholder="Enter title and main duties or NA"></textarea>
+                 </div>
+                 <div class="form-group">
+                     <label>Basic and Gross Salary (Upon Leaving) *</label>
+                     <input type="text" name="employment[#][salary]" required data-initially-required="true" placeholder="e.g., SGD 5000 or NA">
+                     <small>(Enter current salary if still employed)</small>
+                 </div>
+                 <div class="form-group">
+                     <label>No. of Staff under your supervision? *</label>
+                     <input type="number" name="employment[#][supervision_count]" required data-initially-required="true" min="0" value="0" placeholder="Enter number (e.g., 0)">
+                 </div>
+                 <div class="form-group">
+                     <label>Total No. of Company Staff? *</label>
+                     <input type="text" name="employment[#][company_size]" required data-initially-required="true" placeholder="e.g., 50-100, 500+, or NA">
+                 </div>
+            </div>
         </fieldset>
     </template>
+
+    <!-- Include the common script -->
     <script src="/js/section_common.js"></script>
 </body>
 </html>
