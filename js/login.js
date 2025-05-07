@@ -1,7 +1,7 @@
 // js/login.js
 
 import { createAuth0Client } from '@auth0/auth0-spa-js'; // Make sure this path matches your import map
-import { auth0Config } from './auth0_config.js';         // Make sure this path is correct
+import { auth0Config } from '/js/auth0_config.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
     const loginButton = document.getElementById('btn-login');
