@@ -1,0 +1,33 @@
+<!-- sections/section-applicant-details.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Link MAIN stylesheet for consistent styling inside iframe -->
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        /* Add padding within the iframe content */
+        body { padding: 20px; background-color: #fff; /* Ensure background */}
+        /* Optionally hide section titles if parent page has them */
+        /* h2 { display: none; } */
+    </style>
+</head>
+<body>
+    <!-- Section content only -->
+    <section id="section-applicant-details" class="form-section">
+        <h2>Main Applicant Details</h2> <!-- Keep H2 for context/testing -->
+        <div class="form-grid">
+            <!-- PASTE ALL FIELDS for Applicant Details here -->
+             <div class="form-group"> <label for="applicant-name">Full name as per passport *</label> <input type="text" id="applicant-name" name="applicant_name" required placeholder="Enter full name or NA"> </div>
+             <div class="form-group"> <label for="applicant-race-religion">Race & Religion *</label> <input type="text" id="applicant-race-religion" name="applicant_race_religion" required placeholder="e.g., Chinese / Buddhist or NA"> </div>
+             {/* ... ALL OTHER FIELDS FOR SECTION 1 ... */}
+             <div class="form-group"> <label for="applicant-hp">HP Number *</label> <input type="tel" id="applicant-hp" name="applicant_hp" required placeholder="Enter phone number or NA"> </div>
+             <!-- IMPORTANT: Ensure names match what save/load expects -->
+        </div>
+    </section>
+
+    <!-- Include script for potential iframe communication -->
+    <script src="/js/section_common.js"></script>
+</body>
+</html>
