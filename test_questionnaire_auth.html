@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auth Check Test on Questionnaire-like Page</title>
+    <link rel="stylesheet" href="/css/style.css"> <!-- Optional: for basic button styling -->
+    <style>
+        body { font-family: sans-serif; padding: 20px; }
+        #auth-status { font-weight: bold; padding: 10px; border: 1px solid #ccc; margin-bottom: 20px; }
+        .success { color: green; background-color: #e6ffe6; border-color: green; }
+        .error { color: red; background-color: #ffe6e6; border-color: red; }
+        .info { color: #337ab7; background-color: #e7f3fe; border-color: #bce8f1;}
+        .hidden { display: none; }
+    </style>
+    <!-- Import Map -->
+    <script type="importmap">
+      {
+        "imports": {
+          "@auth0/auth0-spa-js": "https://cdn.jsdelivr.net/npm/@auth0/auth0-spa-js@2.1.3/dist/auth0-spa-js.production.esm.js",
+          "/js/auth0_config.js": "/js/auth0_config.js",
+          "/js/auth_check.js": "/js/auth_check.js"
+        }
+      }
+    </script>
+</head>
+<body>
+    <h1>Test: Authentication Check for Protected Page</h1>
+    <p>This page attempts to use <code>auth_check.js</code> to verify authentication. If not authenticated, it should redirect to login. If authenticated, it will display user info.</p>
+
+    <div id="auth-status" class="info">Initializing and checking authentication...</div>
+
+    <div id="page-content" class="hidden">
+        <h2>Authentication Successful!</h2>
+        <div id="user-info">
+            <p>User ID (sub): <strong id="user-id-display"></strong></p>
+            <p>Email: <strong id="user-email-display"></strong></p>
+            <p>Full Profile:</p>
+            <pre id="user-profile-display" style="background-color: #f0f0f0; padding: 10px; border: 1px solid #ddd; white-space: pre-wrap; word-break: break-all;"></pre>
+        </div>
+        <button id="btn-logout" class="button logout-button">Log Out</button>
+        <hr>
+        <p><a href="/landing.html">Back to Landing</a></p>
+        <p><a href="/questionnaire.html">Go to Full Questionnaire (if this test works)</a></p>
+    </div>
+
+    <script type="module">
+        import { initializeAuth } from '/js/auth_check.js'; // Use the common auth checker
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            console.log("Test_Questionnaire_Auth.html - DOMContentLoaded");
+
+            const pageContent = document.getElementById('page-content');
+            const authStatusElement = document.getElementById('auth-status');
+            const userIdDisplay = document.getElementById('user-id-display');
+            const userEmailDisplay = document.getElementById('user-email-display');
+            const userProfileDisplay = document.getElementById('user-profile-display');
+            const logoutButton = document.getElementById('btn-logout');
+
+            try {
+                console.log("Test_Questionnaire_Auth.html - Calling initializeAuth()...");
+                // initializeAuth will handle redirect if not authenticated
+                const { auth0, user, userId } = await initializeAuth();
+
+                // If we reach here, initializeAuth resolved, meaning user is authenticated
+                console.log("Test_Questionnaire_Auth.html - initializeAuth() resolved. User is authenticated.");
+                authStatusElement.textContent = 'Authentication successful!';
+                authStatusElement.className = 'success'; // Change class for styling
+                pageContent.classList.remove('hidden');
+
+                if (user) {
+                    userIdDisplay.textContent = userId || 'N/A';
+                    userEmailDisplay.textContent = user.email || 'N/A';
+                    userProfileDisplay.textContent = JSON.stringify(user, null, 2);
+                } else {
+                    userIdDisplay.textContent = 'Error: No user profile data.';
+                    userEmailDisplay.textContent = 'N/A';
+                    userProfileDisplay.textContent = '{}';
+                }
+
+                if (logoutButton) {
+                    logoutButton.addEventListener('click', () => {
+                        auth0.logout({
+                            logoutParams: {
+                                returnTo: window.location.origin + '/' // Redirect to login page
+                            }
+                        });
+                    });
+                }
+
+            } catch (e) {
+                // This catch will only be hit if initializeAuth itself throws an unhandled error
+                // AFTER the point where it would have redirected for non-authentication.
+                // (e.g., if createAuth0Client itself failed catastrophically in auth_check.js)
+                console.error("Test_Questionnaire_Auth.html - Error after initializeAuth promise:", e);
+                authStatusElement.textContent = `Critical Error: ${e.message}. Please check console.`;
+                authStatusElement.className = 'error';
+                pageContent.classList.add('hidden'); // Ensure content remains hidden
+            }
+        });
+    </script>
+</body>
+</html>
