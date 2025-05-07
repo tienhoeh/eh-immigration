@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>National Service Details</title>
+    <link rel="stylesheet" href="/css/style.css"> <!-- Link to main stylesheet -->
+    <style>
+        body { padding: 20px; background-color: #fff; }
+        /* Adjust grid specifically for this section if needed */
+        #ns-details-container .form-grid {
+             grid-template-columns: 1fr; /* Stack fields by default */
+             gap: 15px; /* Reduce gap slightly */
+         }
+         @media (min-width: 600px) { /* Use two columns on wider screens */
+             #ns-details-container .form-grid {
+                 grid-template-columns: 1fr 1fr;
+             }
+             /* Make text areas span full width */
+             #ns-details-container .form-group.full-textarea {
+                grid-column: 1 / -1;
+             }
+         }
+    </style>
+</head>
+<body>
+    <section id="section-ns" class="form-section">
+        <h2>National Service Details</h2>
+
+        <!-- Checkbox to control visibility of the details below -->
+        <div class="form-group" style="margin-bottom: 25px;"> <!-- Add extra space below checkbox -->
+            <label style="flex-direction: row; align-items: center;">
+                <input type="checkbox" id="ns-applicable" name="ns_applicable" value="yes" style="width: auto; height: auto; margin-right: 10px;">
+                National Service is Applicable to me
+            </label>
+        </div>
+
+        <!-- Container for the NS details, hidden initially -->
+        <div id="ns-details-container" class="hidden">
+             <div class="form-grid">
+                <div class="form-group">
+                    <label for="ns-organization">Organization *</label>
+                    <select id="ns-organization" name="ns_organization" data-initially-required="true">
+                        <option value="">-- Select --</option>
+                        <option value="SAF">SAF (Singapore Armed Forces)</option>
+                        <option value="SCDF">SCDF (Singapore Civil Defence Force)</option>
+                        <option value="SPF">SPF (Singapore Police Force)</option>
+                        <option value="NA">Not Applicable / Other</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="ns-enlistment">Date of Enlistment *</label>
+                    <input type="date" id="ns-enlistment" name="ns_enlistment" data-initially-required="true">
+                </div>
+
+                <div class="form-group">
+                    <label for="ns-ord">Operationally Ready Date (ORD) *</label>
+                    <input type="date" id="ns-ord" name="ns_ord" data-initially-required="true">
+                </div>
+
+                 <!-- This field might span more naturally -->
+                 <div class="form-group full-textarea">
+                    <label for="ns-ranks">Ranks & Appointment Held at ORD *</label>
+                    <input type="text" id="ns-ranks" name="ns_ranks" placeholder="e.g., Corporal, Section Leader or NA" data-initially-required="true">
+                </div>
+
+                <div class="form-group full-textarea">
+                    <label for="ns-conduct">Performance & Conduct *</label>
+                    <textarea id="ns-conduct" name="ns_conduct" rows="3" placeholder="Describe performance/conduct or NA" data-initially-required="true"></textarea>
+                </div>
+             </div>
+        </div>
+    </section>
+
+    <!-- Include script common to iframe sections -->
+    <!-- This script needs to handle the visibility toggle for #ns-details-container based on #ns-applicable -->
+    <script src="/js/section_common.js"></script>
+</body>
+</html>
