@@ -1,6 +1,6 @@
 // js/auth_check.js
 import { createAuth0Client } from '@auth0/auth0-spa-js';
-import { auth0Config } from './auth0_config.js';
+import { auth0Config } from '/js/auth0_config.js';
 
 let auth0Client = null;
 let userProfile = null;
