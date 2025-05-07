@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Travel Documents</title>
+    <link rel="stylesheet" href="/css/style.css"> <!-- Link to main stylesheet -->
+    <style>
+        body { padding: 20px 30px; background-color: #fff; }
+        /* Adjust grid for potentially wider passport fields */
+        #passport-container .form-grid {
+             grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+             gap: 15px 20px;
+        }
+         /* Allow name field to potentially span more */
+        #passport-container .form-group.passport-name {
+             grid-column: span 2; /* Example: make name span 2 columns */
+        }
+        @media (max-width: 600px) {
+             #passport-container .form-group.passport-name {
+                grid-column: auto; /* Revert to single column on small screens */
+             }
+        }
+    </style>
+</head>
+<body>
+    <section id="section-passports" class="form-section">
+         <h2>All Past & Current Residential Status and Travel Document(s) Issued</h2>
+         <p><i>Passports used to enter Singapore</i></p>
+         <div id="passport-container">
+              <!-- Initial Passport Item (Record 1) -->
+              <fieldset class="repeatable-item fieldset-group" data-group="passport">
+                 <legend>Passport Record 1</legend>
+                 <button type="button" class="remove-item-button hidden">Remove Passport</button>
+                 <div class="form-grid">
+                     <div class="form-group passport-name"> <!-- Added class for potential layout adjustment -->
+                         <label for="passport-1-name">Name as per Passport *</label>
+                         <input type="text" id="passport-1-name" name="passport[1][name]" required data-initially-required="true" placeholder="Enter full name as on passport or NA">
+                     </div>
+                     <div class="form-group">
+                         <label for="passport-1-number">Passport Number *</label>
+                         <input type="text" id="passport-1-number" name="passport[1][number]" required data-initially-required="true" placeholder="Enter passport number or NA">
+                     </div>
+                     <div class="form-group">
+                         <label for="passport-1-issue_date">Passport Issue Date *</label>
+                         <input type="date" id="passport-1-issue_date" name="passport[1][issue_date]" required data-initially-required="true">
+                     </div>
+                     <div class="form-group">
+                         <label for="passport-1-expiry_date">Passport Expiry Date *</label>
+                         <input type="date" id="passport-1-expiry_date" name="passport[1][expiry_date]" required data-initially-required="true">
+                     </div>
+                     <div class="form-group">
+                         <label for="passport-1-country">Country of Issuance *</label>
+                         <input type="text" id="passport-1-country" name="passport[1][country]" required data-initially-required="true" placeholder="Enter country name or NA">
+                     </div>
+                     <div class="form-group">
+                         <label for="passport-1-province_state">Province / State of Issuance *</label>
+                         <input type="text" id="passport-1-province_state" name="passport[1][province_state]" required data-initially-required="true" placeholder="Enter province/state or NA">
+                     </div>
+                 </div> <!-- End form-grid -->
+              </fieldset>
+         </div> <!-- End #passport-container -->
+
+         <button type="button" id="add-passport" class="button add-button">Add Passport Record</button>
+    </section>
+
+    <!-- Template for NEW Passport Records -->
+    <template id="passport-template">
+        <fieldset class="repeatable-item fieldset-group" data-group="passport">
+            <legend>Passport Record #</legend>
+            <button type="button" class="remove-item-button">Remove Passport</button>
+            <div class="form-grid">
+                 <div class="form-group passport-name">
+                     <label>Name as per Passport *</label>
+                     <input type="text" name="passport[#][name]" required data-initially-required="true" placeholder="Enter full name as on passport or NA">
+                 </div>
+                 <div class="form-group">
+                     <label>Passport Number *</label>
+                     <input type="text" name="passport[#][number]" required data-initially-required="true" placeholder="Enter passport number or NA">
+                 </div>
+                 <div class="form-group">
+                     <label>Passport Issue Date *</label>
+                     <input type="date" name="passport[#][issue_date]" required data-initially-required="true">
+                 </div>
+                 <div class="form-group">
+                     <label>Passport Expiry Date *</label>
+                     <input type="date" name="passport[#][expiry_date]" required data-initially-required="true">
+                 </div>
+                 <div class="form-group">
+                     <label>Country of Issuance *</label>
+                     <input type="text" name="passport[#][country]" required data-initially-required="true" placeholder="Enter country name or NA">
+                 </div>
+                 <div class="form-group">
+                     <label>Province / State of Issuance *</label>
+                     <input type="text" name="passport[#][province_state]" required data-initially-required="true" placeholder="Enter province/state or NA">
+                 </div>
+            </div> <!-- End form-grid -->
+        </fieldset>
+    </template>
+
+    <!-- Include the common script -->
+    <script src="/js/section_common.js"></script>
+</body>
+</html>
