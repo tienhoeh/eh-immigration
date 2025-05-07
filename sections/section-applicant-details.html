@@ -1,33 +1,162 @@
-<!-- sections/section-applicant-details.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Link MAIN stylesheet for consistent styling inside iframe -->
-    <link rel="stylesheet" href="/css/style.css">
+    <title>Applicant Details</title>
+    <link rel="stylesheet" href="/css/style.css"> <!-- Link to main stylesheet -->
     <style>
         /* Add padding within the iframe content */
-        body { padding: 20px; background-color: #fff; /* Ensure background */}
-        /* Optionally hide section titles if parent page has them */
+        body { padding: 20px 30px; background-color: #fff; }
+        /* Hide the main h2 if the parent frame displays titles */
         /* h2 { display: none; } */
+        /* Ensure conditional fields work correctly */
+        .hidden { display: none !important; }
     </style>
 </head>
 <body>
-    <!-- Section content only -->
     <section id="section-applicant-details" class="form-section">
-        <h2>Main Applicant Details</h2> <!-- Keep H2 for context/testing -->
+        <h2>Main Applicant Details</h2>
         <div class="form-grid">
-            <!-- PASTE ALL FIELDS for Applicant Details here -->
-             <div class="form-group"> <label for="applicant-name">Full name as per passport *</label> <input type="text" id="applicant-name" name="applicant_name" required placeholder="Enter full name or NA"> </div>
-             <div class="form-group"> <label for="applicant-race-religion">Race & Religion *</label> <input type="text" id="applicant-race-religion" name="applicant_race_religion" required placeholder="e.g., Chinese / Buddhist or NA"> </div>
-             {/* ... ALL OTHER FIELDS FOR SECTION 1 ... */}
-             <div class="form-group"> <label for="applicant-hp">HP Number *</label> <input type="tel" id="applicant-hp" name="applicant_hp" required placeholder="Enter phone number or NA"> </div>
-             <!-- IMPORTANT: Ensure names match what save/load expects -->
-        </div>
+
+            <!-- Name Split into Two Fields -->
+            <div class="form-group">
+                <label for="applicant-given-name">Full Name (as per passport, excluding Family Name) *</label>
+                <input type="text" id="applicant-given-name" name="applicant_given_name" required data-initially-required="true" placeholder="Enter given/first names or NA">
+            </div>
+            <div class="form-group">
+                <label for="applicant-family-name">Family Name / Surname (as per passport) *</label>
+                <input type="text" id="applicant-family-name" name="applicant_family_name" required data-initially-required="true" placeholder="Enter family name/surname or NA">
+            </div>
+
+            <div class="form-group">
+                <label for="applicant-current-status">Current Immigration Status in Singapore *</label>
+                <input type="text" id="applicant-current-status" name="applicant_current_status" required data-initially-required="true" placeholder="e.g., Employment Pass, Dependant's Pass, NA">
+            </div>
+            <div class="form-group">
+                 <label for="applicant-race-religion">Race & Religion *</label>
+                 <input type="text" id="applicant-race-religion" name="applicant_race_religion" required data-initially-required="true" placeholder="e.g., Chinese / Buddhist or NA">
+            </div>
+
+            <div class="form-group">
+                <label for="applicant-prev-status">Previous Immigration Status in Singapore *</label>
+                <input type="text" id="applicant-prev-status" name="applicant_prev_status" required data-initially-required="true" placeholder="Enter previous status or NA">
+            </div>
+            <div class="form-group">
+                 <label for="applicant-marital-status">Marital Status *</label>
+                 <select id="applicant-marital-status" name="applicant_marital_status" required data-initially-required="true">
+                     <option value="">-- Select --</option>
+                     <option value="Single">Single</option>
+                     <option value="Married">Married</option>
+                     <option value="Divorced">Divorced</option>
+                     <option value="Widowed">Widowed</option>
+                     <option value="Separated">Separated</option>
+                     <option value="NA">NA</option>
+                 </select>
+            </div>
+
+             <div class="form-group">
+                <label for="applicant-alias">Alias (If any) *</label>
+                <input type="text" id="applicant-alias" name="applicant_alias" required data-initially-required="true" placeholder="Enter alias or NA">
+            </div>
+             <div class="form-group">
+                <label for="applicant-foreign-id">Foreign ID Number *</label>
+                <input type="text" id="applicant-foreign-id" name="applicant_foreign_id" required data-initially-required="true" placeholder="Enter ID (e.g., National ID) or NA">
+                 <small>Foreign IDs issued by country of nationality</small> <!-- Added clarification text -->
+            </div>
+
+             <div class="form-group">
+                <label for="applicant-nationality">Nationality *</label>
+                <input type="text" id="applicant-nationality" name="applicant_nationality" required data-initially-required="true" placeholder="Enter nationality or NA">
+            </div>
+             <div class="form-group full-width"> <!-- Present Whereabouts spans full width likely -->
+                 <label for="applicant-present-whereabouts">Present Whereabouts (Full Address) *</label>
+                 <textarea id="applicant-present-whereabouts" name="applicant_present_whereabouts" rows="3" required data-initially-required="true" placeholder="Enter current full address or NA"></textarea>
+             </div>
+
+             <div class="form-group">
+                <label for="applicant-dob">Date of Birth *</label>
+                <input type="date" id="applicant-dob" name="applicant_dob" required data-initially-required="true">
+            </div>
+             <div class="form-group full-width">
+                 <label for="applicant-nationality-address">Address in Country of Nationality *</label>
+                 <textarea id="applicant-nationality-address" name="applicant_nationality_address" rows="3" required data-initially-required="true" placeholder="Enter address or NA"></textarea>
+             </div>
+
+             <div class="form-group">
+                <label for="applicant-birth-country">Country of Birth *</label>
+                <input type="text" id="applicant-birth-country" name="applicant_birth_country" required data-initially-required="true" placeholder="Enter country or NA">
+            </div>
+             <div class="form-group full-width">
+                 <label for="applicant-sg-address">Address in Singapore *</label>
+                 <textarea id="applicant-sg-address" name="applicant_sg_address" rows="3" required data-initially-required="true" placeholder="Enter address or NA if not residing"></textarea>
+             </div>
+
+             <div class="form-group">
+                <label for="applicant-birth-province">Province and State of Birth *</label>
+                <input type="text" id="applicant-birth-province" name="applicant_birth_province" required data-initially-required="true" placeholder="Enter province/state or NA">
+            </div>
+             <div class="form-group">
+                 <label>Do you have any other citizenship status/nationality? *</label>
+                 <div>
+                    <label style="display: inline-block; margin-right: 15px;"><input type="radio" name="applicant_other_citizenship" value="Yes" required data-initially-required="true"> Yes</label>
+                    <label style="display: inline-block; margin-right: 15px;"><input type="radio" name="applicant_other_citizenship" value="No"> No</label>
+                    <label style="display: inline-block;"><input type="radio" name="applicant_other_citizenship" value="NA"> NA</label>
+                 </div>
+             </div>
+             <!-- Conditional field for other citizenship -->
+             <div class="form-group full-width hidden" id="other-citizenship-details">
+                  <label for="applicant-other-citizenship-list">List Other Citizenships/Nationalities *</label>
+                  <input type="text" id="applicant-other-citizenship-list" name="applicant_other_citizenship_list" placeholder="List all or NA" data-initially-required="true"> <!-- Required toggled by JS -->
+             </div>
+
+             <div class="form-group">
+                <label for="applicant-email">Email *</label>
+                <input type="email" id="applicant-email" name="applicant_email" required data-initially-required="true" placeholder="Enter email or NA">
+            </div>
+            <div class="form-group">
+                 <label for="applicant-language">Language Proficiency (Written) *</label>
+                 <input type="text" id="applicant-language" name="applicant_language" required data-initially-required="true" placeholder="List all written languages or NA">
+                 <small>(what are all the languages you written?)</small> <!-- Added clarification -->
+            </div>
+
+
+            <div class="form-group"> <!-- HP Number - place it logically, maybe below email -->
+                 <label for="applicant-hp">HP Number *</label>
+                 <input type="tel" id="applicant-hp" name="applicant_hp" required data-initially-required="true" placeholder="Enter phone number or NA">
+            </div>
+
+        </div> <!-- End form-grid -->
     </section>
 
-    <!-- Include script for potential iframe communication -->
+    <!-- Include the common script for iframe communication and potential shared logic -->
     <script src="/js/section_common.js"></script>
+    <!-- Specific JS for this section (e.g., conditional other citizenship) -->
+    <script>
+        // Simple conditional logic for this section's specific needs
+        document.addEventListener('DOMContentLoaded', () => {
+            const otherCitizenshipRadios = document.querySelectorAll('input[name="applicant_other_citizenship"]');
+            const otherCitizenshipDetails = document.getElementById('other-citizenship-details');
+            const otherCitizenshipInput = document.getElementById('applicant-other-citizenship-list');
+
+            const checkOtherCitizenship = () => {
+                let showDetails = false;
+                otherCitizenshipRadios.forEach(radio => {
+                    if(radio.checked && radio.value === 'Yes') {
+                        showDetails = true;
+                    }
+                });
+                if(otherCitizenshipDetails) otherCitizenshipDetails.classList.toggle('hidden', !showDetails);
+                if(otherCitizenshipInput) otherCitizenshipInput.required = showDetails;
+            };
+
+            otherCitizenshipRadios.forEach(radio => {
+                radio.addEventListener('change', checkOtherCitizenship);
+            });
+
+            // Initial check in case loading from draft
+            checkOtherCitizenship();
+        });
+    </script>
 </body>
 </html>
