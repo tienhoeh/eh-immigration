@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Absence From Singapore</title>
+    <link rel="stylesheet" href="/css/style.css"> <!-- Link to main stylesheet -->
+    <style>
+        body { padding: 20px 30px; background-color: #fff; }
+        /* Adjust grid for this section if needed */
+        #absence-container .form-grid {
+             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* Maybe allow more columns for dates/locations */
+             gap: 15px 20px; /* Adjust gap */
+        }
+         #absence-container .form-group.purpose {
+            grid-column: 1 / -1; /* Make purpose span full width */
+            max-width: 600px; /* Optional: limit width of purpose */
+         }
+    </style>
+</head>
+<body>
+    <section id="section-absence" class="form-section">
+         <h2>Main Applicant's Absence from Singapore Over The Past 6 Years</h2>
+         <p>For the past 6 years, only include the absence for 6 months or more.</p>
+         <div id="absence-container">
+              <!-- Initial Absence Period Item (Record 1) -->
+              <fieldset class="repeatable-item fieldset-group" data-group="absence">
+                 <legend>Absence Period 1</legend>
+                 <button type="button" class="remove-item-button hidden">Remove Period</button>
+                 <div class="form-grid">
+                     <div class="form-group">
+                         <label for="absence-1-leaving_date">Date of leaving (DD/MM/YYYY) *</label>
+                         <input type="date" id="absence-1-leaving_date" name="absence[1][leaving_date]" required data-initially-required="true">
+                     </div>
+                     <div class="form-group">
+                         <label for="absence-1-return_date">Date of return (DD/MM/YYYY) *</label>
+                         <input type="date" id="absence-1-return_date" name="absence[1][return_date]" required data-initially-required="true">
+                     </div>
+                     <div class="form-group purpose"> <!-- Apply class for layout -->
+                         <label for="absence-1-purpose">Purpose of Trip *</label>
+                         <input type="text" id="absence-1-purpose" name="absence[1][purpose]" required data-initially-required="true" placeholder="e.g., Work, Study, Vacation, NA">
+                     </div>
+                     <div class="form-group">
+                         <label for="absence-1-country">Country *</label>
+                         <input type="text" id="absence-1-country" name="absence[1][country]" required data-initially-required="true" placeholder="Enter country name or NA">
+                     </div>
+                     <div class="form-group">
+                         <label for="absence-1-province_state">Province & State *</label>
+                         <input type="text" id="absence-1-province_state" name="absence[1][province_state]" required data-initially-required="true" placeholder="Enter province/state or NA">
+                     </div>
+                 </div> <!-- End form-grid -->
+              </fieldset>
+         </div> <!-- End #absence-container -->
+
+          <button type="button" id="add-absence" class="button add-button">Add Period of Absence</button>
+    </section>
+
+    <!-- Template for NEW Absence Periods -->
+    <template id="absence-template">
+        <fieldset class="repeatable-item fieldset-group" data-group="absence">
+            <legend>Absence Period #</legend>
+            <button type="button" class="remove-item-button">Remove Period</button>
+            <div class="form-grid">
+                 <div class="form-group">
+                     <label>Date of leaving (DD/MM/YYYY) *</label>
+                     <input type="date" name="absence[#][leaving_date]" required data-initially-required="true">
+                 </div>
+                 <div class="form-group">
+                     <label>Date of return (DD/MM/YYYY) *</label>
+                     <input type="date" name="absence[#][return_date]" required data-initially-required="true">
+                 </div>
+                 <div class="form-group purpose"> <!-- Apply class for layout -->
+                     <label>Purpose of Trip *</label>
+                     <input type="text" name="absence[#][purpose]" required data-initially-required="true" placeholder="e.g., Work, Study, Vacation, NA">
+                 </div>
+                 <div class="form-group">
+                     <label>Country *</label>
+                     <input type="text" name="absence[#][country]" required data-initially-required="true" placeholder="Enter country name or NA">
+                 </div>
+                 <div class="form-group">
+                     <label>Province & State *</label>
+                     <input type="text" name="absence[#][province_state]" required data-initially-required="true" placeholder="Enter province/state or NA">
+                 </div>
+            </div> <!-- End form-grid -->
+        </fieldset>
+    </template>
+
+    <!-- Include the common script -->
+    <script src="/js/section_common.js"></script>
+</body>
+</html>
