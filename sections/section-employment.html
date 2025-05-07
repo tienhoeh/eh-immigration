@@ -7,7 +7,6 @@
     <link rel="stylesheet" href="/css/style.css"> <!-- Link to main stylesheet -->
     <style>
         body { padding: 20px 30px; background-color: #fff; }
-        /* Ensure text areas have reasonable height */
         textarea[name*="title_responsibilities"] { min-height: 80px; }
         small { display: block; font-size: 0.8em; color: #666; margin-top: 3px; }
     </style>
@@ -31,9 +30,20 @@
                          <input type="month" id="employment-1-leaving" name="employment[1][leaving]" required data-initially-required="true">
                          <label style="font-weight: normal; margin-top: 5px;"><input type="checkbox" name="employment[1][current_job]" value="yes"> Currently employed here</label>
                      </div>
-                     <div class="form-group full-width">
-                         <label for="employment-1-company_industry">Company Name & Business Industry *</label>
-                         <input type="text" id="employment-1-company_industry" name="employment[1][company_industry]" required data-initially-required="true" placeholder="e.g., ABC Corp / IT Services or NA">
+                     {/* <!-- Split Company Name and Industry --> */}
+                     <div class="form-group">
+                         <label for="employment-1-company_name">Company Name *</label>
+                         <input type="text" id="employment-1-company_name" name="employment[1][company_name]" required data-initially-required="true" placeholder="Enter company name or NA">
+                     </div>
+                     <div class="form-group">
+                         <label for="employment-1-business_industry">Business Industry *</label>
+                         <input type="text" id="employment-1-business_industry" name="employment[1][business_industry]" required data-initially-required="true" placeholder="e.g., IT Services, F&B, Retail, or NA">
+                     </div>
+                     {/* <!-- Added UEN Field --> */}
+                      <div class="form-group">
+                         <label for="employment-1-uen">Company UEN (for Singapore companies)</label>
+                         <input type="text" id="employment-1-uen" name="employment[1][uen]" placeholder="Enter UEN or NA">
+                         <small>Enter 'NA' if not applicable/not a Singapore company.</small>
                      </div>
                      <div class="form-group full-width">
                          <label for="employment-1-address">Company Full Address *</label>
@@ -56,7 +66,7 @@
                          <label for="employment-1-company_size">Total No. of Company Staff? *</label>
                          <input type="text" id="employment-1-company_size" name="employment[1][company_size]" required data-initially-required="true" placeholder="e.g., 50-100, 500+, or NA">
                      </div>
-                 </div>
+                 </div> <!-- End form-grid -->
              </fieldset>
          </div> <!-- End #employment-container -->
 
@@ -78,9 +88,20 @@
                      <input type="month" name="employment[#][leaving]" required data-initially-required="true">
                      <label style="font-weight: normal; margin-top: 5px;"><input type="checkbox" name="employment[#][current_job]" value="yes"> Currently employed here</label>
                  </div>
-                 <div class="form-group full-width">
-                     <label>Company Name & Business Industry *</label>
-                     <input type="text" name="employment[#][company_industry]" required data-initially-required="true" placeholder="e.g., ABC Corp / IT Services or NA">
+                 {/* <!-- Split Company Name and Industry --> */}
+                 <div class="form-group">
+                     <label>Company Name *</label>
+                     <input type="text" name="employment[#][company_name]" required data-initially-required="true" placeholder="Enter company name or NA">
+                 </div>
+                 <div class="form-group">
+                     <label>Business Industry *</label>
+                     <input type="text" name="employment[#][business_industry]" required data-initially-required="true" placeholder="e.g., IT Services, F&B, Retail, or NA">
+                 </div>
+                 {/* <!-- Added UEN Field --> */}
+                  <div class="form-group">
+                     <label>Company UEN (for Singapore companies)</label>
+                     <input type="text" name="employment[#][uen]" placeholder="Enter UEN or NA">
+                     <small>Enter 'NA' if not applicable/not a Singapore company.</small>
                  </div>
                  <div class="form-group full-width">
                      <label>Company Full Address *</label>
@@ -103,7 +124,7 @@
                      <label>Total No. of Company Staff? *</label>
                      <input type="text" name="employment[#][company_size]" required data-initially-required="true" placeholder="e.g., 50-100, 500+, or NA">
                  </div>
-            </div>
+            </div> <!-- End form-grid -->
         </fieldset>
     </template>
 
