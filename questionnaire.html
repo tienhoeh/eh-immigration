@@ -1,0 +1,89 @@
+<!-- questionnaire.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Applicant Questionnaire - E&H Portal</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        /* Ensure container takes height */
+        .container { height: calc(100vh - 140px); /* Adjust based on header/footer height */ }
+        /* Iframe styling */
+        #section-iframe {
+            width: 100%;
+            height: 100%; /* Fill the form-container space */
+            border: none; /* Remove default border */
+        }
+        /* Ensure form-container doesn't add its own padding if iframe handles it */
+        main.form-container {
+             padding: 0;
+             overflow: hidden; /* Hide potential scrollbars if iframe manages scrolling */
+        }
+        .hidden { display: none; }
+        #auth-status { padding: 30px; text-align: center; font-style: italic; }
+
+    </style>
+    <!-- Import Map -->
+    <script type="importmap">
+      {
+        "imports": {
+          "@auth0/auth0-spa-js": "https://cdn.jsdelivr.net/npm/@auth0/auth0-spa-js@2.1.3/dist/auth0-spa-js.production.esm.js",
+          "/js/auth0_config.js": "/js/auth0_config.js",
+          "/js/auth_check.js": "/js/auth_check.js"
+        }
+      }
+    </script>
+</head>
+<body>
+    <div id="auth-status">Checking authentication...</div>
+
+    <div id="page-content" class="hidden"> <!-- Hide until authenticated -->
+        <header class="header">
+            <h1>Applicant's Questionnaire</h1>
+             <!-- Display user/logout in header? Optional -->
+             <div id="user-info" style="position: absolute; top: 15px; right: 20px; color: white; font-size: 0.9em;">
+                 <span id="user-email"></span>
+                 <button id="btn-logout" class="button logout-button" style="margin-left: 10px; padding: 5px 10px; font-size: 0.8em;">Log Out</button>
+             </div>
+            <p>To be completed by the main applicant. Please fill all fields or enter 'NA' if not applicable.</p>
+        </header>
+
+        <div class="container"> <!-- This needs a defined height via CSS -->
+            <nav id="side-nav" class="side-nav">
+                <h3>Sections</h3>
+                <!-- Links now target the iframe -->
+                <ul>
+                    <li><a href="/sections/section-applicant-details.html" target="section-iframe">Applicant Details</a></li>
+                    <li><a href="/sections/section-parents.html" target="section-iframe">Parent's Info</a></li>
+                    <li><a href="/sections/section-siblings.html" target="section-iframe">Sibling's Info</a></li>
+                    <li><a href="/sections/section-education.html" target="section-iframe">Education History</a></li>
+                    <li><a href="/sections/section-employment.html" target="section-iframe">Employment History</a></li>
+                    <li><a href="/sections/section-absence.html" target="section-iframe">Absence from SG</a></li>
+                    <li><a href="/sections/section-passports.html" target="section-iframe">Travel Documents</a></li>
+                    <li><a href="/sections/section-ns.html" target="section-iframe">National Service</a></li>
+                    <li><a href="/sections/section-prev-marriage.html" target="section-iframe">Previous Marriage</a></li>
+                    <li><a href="/sections/section-prev-children.html" target="section-iframe">Children (Previous Marriage)</a></li>
+                    <li><a href="/sections/section-review.html" target="section-iframe">Review & Submit</a></li> <!-- Review page might need special handling -->
+                </ul>
+                <!-- Save button on PARENT page - complex interaction needed -->
+                <button type="button" id="save-progress" class="button save-button" disabled>Save Draft</button>
+                <p id="save-status" class="save-status"></p>
+            </nav>
+
+            <main id="form-container" class="form-container">
+                <!-- Iframe to load individual sections -->
+                <iframe name="section-iframe" id="section-iframe" src="/sections/section-applicant-details.html" title="Questionnaire Section"></iframe>
+                <!-- Initial src set to the first section -->
+            </main>
+        </div>
+
+        <footer class="footer">
+             <p>E&H Consulting Group Pte. Ltd. ...</p>
+        </footer>
+    </div>
+
+    <!-- Auth Check + Page Specific Script -->
+    <script type="module" src="/js/questionnaire.js"></script>
+</body>
+</html>
