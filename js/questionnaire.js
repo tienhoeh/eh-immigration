@@ -1,77 +1,144 @@
 // js/questionnaire.js
-import { initializeAuth } from './auth_check.js';
+
+import { initializeAuth } from './auth_check.js'; // Use the common auth checker
 
 document.addEventListener('DOMContentLoaded', async () => {
-    const pageContent = document.getElementById('page-content');
+    console.log("Questionnaire.js - DOMContentLoaded event fired.");
+
+    // --- Global Elements for questionnaire.html ---
+    const pageContent = document.getElementById('page-content'); // The main wrapper to show/hide
     const authStatusElement = document.getElementById('auth-status');
     const sideNavLinks = document.querySelectorAll('#side-nav a');
     const iframe = document.getElementById('section-iframe');
     const saveButton = document.getElementById('save-progress');
-    const saveStatus = document.getElementById('save-status');
-    const userEmailElement = document.getElementById('user-email'); // In header
-    const logoutButton = document.getElementById('btn-logout'); // In header
+    const saveStatusElement = document.getElementById('save-status');
+    const userEmailElement = document.getElementById('user-email'); // In header of questionnaire.html
+    const logoutButton = document.getElementById('btn-logout'); // In header of questionnaire.html
+    const containerDiv = document.querySelector('.container'); // Main content container
 
+    // --- State Variables ---
     let auth0 = null;
+    let currentUser = null;
     let currentUserId = 'anonymous';
     let fullDraftData = {}; // Object to hold draft data from all sections
+    let currentSectionSrc = ''; // To keep track of the iframe's current section
 
+    // ==================================
+    //  Initialization Flow & Auth Check
+    // ==================================
     try {
-        const initResult = await initializeAuth(); // Auth check first
+        console.log("Questionnaire.js - Initializing Auth0 and checking auth...");
+        if(authStatusElement) authStatusElement.style.display = 'block';
+        if(containerDiv) containerDiv.classList.add('is-loading'); // Keep content hidden initially
+
+        const initResult = await initializeAuth(); // Auth check from auth_check.js
         auth0 = initResult.auth0;
+        currentUser = initResult.user;
         currentUserId = initResult.userId;
 
-        // Show content if authenticated
+        // --- Authentication Success: Setup the Form UI ---
+        console.log("Questionnaire.js - User authenticated:", currentUserId);
         if(authStatusElement) authStatusElement.style.display = 'none';
         if(pageContent) pageContent.classList.remove('hidden');
-        if(saveButton) saveButton.disabled = false; // Enable save button
+        if(containerDiv) {
+            containerDiv.classList.remove('is-loading');
+            containerDiv.classList.add('is-visible');
+        }
+        if(saveButton) saveButton.disabled = false;
 
         // Display user info in header
-        if(userEmailElement && initResult.user) userEmailElement.textContent = initResult.user.email || 'User';
+        if(userEmailElement && currentUser) userEmailElement.textContent = currentUser.email || 'User';
         if (logoutButton) {
              logoutButton.addEventListener('click', () => {
                  auth0.logout({ logoutParams: { returnTo: `${window.location.origin}/` } });
              });
          }
 
-        // --- Load Full Draft ---
-        loadOverallDraft();
+        setupSideNavigation();
+        loadOverallDraft(); // Load overall draft state for the user
+        setupSaveDraftButton();
+        setupMessageListenerFromIframe(); // For iframe to send data to parent
 
-        // --- Setup Side Navigation ---
-        setupSideNav();
-
-        // --- Setup Save Button ---
-        setupSaveDraft();
-
-        // --- Setup Message Listener (for data from iframe) ---
-        // setupIframeListener(); // Defer this complexity for now
+        console.log("Questionnaire.js - Application setup complete.");
 
     } catch (e) {
-        console.error("Questionnaire page could not initialize:", e);
-         if(authStatusElement) authStatusElement.textContent = "Authentication required. Redirecting...";
-         // Redirect handled by initializeAuth
+        // Errors during initializeAuth() are typically handled by redirecting in auth_check.js
+        // This catch is for other potential errors during setup.
+        console.error("Questionnaire.js - Fatal Error during setup:", e);
+        if (authStatusElement) authStatusElement.textContent = `Error: ${e.message}. Please try logging in again.`;
+        if(containerDiv) {
+            containerDiv.classList.remove('is-visible');
+            containerDiv.classList.add('is-loading'); // Keep hidden
+        }
     }
 
-    function setupSideNav() {
-        if (!sideNavLinks || !iframe) return;
-        sideNavLinks.forEach(link => {
-            link.addEventListener('click', (e) => {
-                // No preventDefault needed because target="section-iframe" handles it
-                console.log(`Navigating iframe to: ${link.getAttribute('href')}`);
-                // Highlight active link
-                sideNavLinks.forEach(l => l.classList.remove('active'));
-                link.classList.add('active');
-                // Optionally send data TO iframe after it loads
-                // iframe.onload = () => sendDataToIframe(link.getAttribute('href'));
-            });
-        });
-        // Set initial active link
-         const initialLink = document.querySelector('#side-nav a[href="/sections/section-applicant-details.html"]');
-         if(initialLink) initialLink.classList.add('active');
-    }
+    // ==================================
+    //  Helper Function Definitions
+    // ==================================
 
     function getDraftKey() {
         return `ehImmigrationDraft_${currentUserId}`;
     }
+
+    function setupSideNavigation() {
+        if (!sideNavLinks || !iframe) {
+            console.error("Side navigation or iframe element not found.");
+            return;
+        }
+        console.log("Questionnaire.js - Setting up side navigation.");
+
+        sideNavLinks.forEach(link => {
+            link.addEventListener('click', function(e) { // Use function for 'this'
+                // e.preventDefault(); // Not strictly needed due to target="section-iframe"
+                const sectionUrl = this.getAttribute('href');
+                console.log(`Questionnaire.js - Nav link clicked. Loading section: ${sectionUrl}`);
+
+                // Update iframe src - this will trigger iframe.onload if attached
+                iframe.src = sectionUrl;
+                currentSectionSrc = sectionUrl; // Store current section
+
+                // Highlight active link
+                sideNavLinks.forEach(l => l.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        // Set initial active link and load initial section data (if any)
+        const initialLink = document.querySelector('#side-nav a[href="/sections/section-applicant-details.html"]');
+        if (initialLink) {
+            initialLink.classList.add('active');
+            currentSectionSrc = initialLink.getAttribute('href');
+            // iframe.src is set in HTML, onload will handle first load
+        }
+
+        // Handle iframe loading to send it relevant draft data
+        iframe.onload = () => {
+            console.log(`Questionnaire.js - Iframe loaded: ${iframe.contentWindow.location.pathname}`);
+            // Derive section name from the iframe's current path
+            const sectionName = deriveSectionName(iframe.contentWindow.location.pathname);
+            if (sectionName && fullDraftData[sectionName]) {
+                console.log(`Questionnaire.js - Sending draft data for section "${sectionName}" to iframe.`);
+                iframe.contentWindow.postMessage({
+                    type: 'LOAD_SECTION_DATA',
+                    payload: fullDraftData[sectionName]
+                }, window.location.origin); // Target specific origin
+            } else {
+                console.log(`Questionnaire.js - No draft data found for section "${sectionName}" or sectionName could not be derived.`);
+            }
+        };
+    }
+
+    function deriveSectionName(pathname) {
+        // Example: /sections/section-applicant-details.html -> section-applicant-details
+        if (!pathname) return null;
+        const parts = pathname.split('/');
+        const fileName = parts.pop(); // Get the last part (e.g., section-applicant-details.html)
+        if (fileName && fileName.startsWith('section-') && fileName.endsWith('.html')) {
+            return fileName.substring(0, fileName.length - 5); // Remove .html
+        }
+        return null;
+    }
+
 
     function loadOverallDraft() {
         if (currentUserId === 'anonymous') return;
@@ -80,77 +147,113 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (savedData) {
             try {
                 fullDraftData = JSON.parse(savedData);
-                console.log("Overall draft loaded:", fullDraftData);
-                 if (saveStatus) { saveStatus.textContent = 'Draft loaded.'; setTimeout(() => { saveStatus.textContent = ''; }, 2000); }
+                console.log("Questionnaire.js - Overall draft loaded:", fullDraftData);
+                if (saveStatusElement) {
+                    saveStatusElement.textContent = 'Previous draft loaded.';
+                    setTimeout(() => { if(saveStatusElement) saveStatusElement.textContent = ''; }, 3000);
+                }
             } catch (e) {
-                console.error("Error parsing overall draft:", e);
+                console.error("Questionnaire.js - Error parsing overall draft:", e);
                 fullDraftData = {};
             }
         } else {
-             console.log("No overall draft found.");
-             fullDraftData = {};
+            console.log("Questionnaire.js - No overall draft found.");
+            fullDraftData = {};
         }
-        // TODO: Need logic to send relevant part of fullDraftData to iframe when it loads a section
     }
 
-    function setupSaveDraft() {
-         if (!saveButton) return;
-         saveButton.addEventListener('click', () => {
-             if (currentUserId === 'anonymous') return;
-             console.log("Save draft clicked (Parent). Need iframe communication.");
-             if (saveStatus) saveStatus.textContent = 'Saving... (Partial - Requires Iframe Data)';
+    function setupSaveDraftButton() {
+        if (!saveButton || !iframe) return;
+        console.log("Questionnaire.js - Setting up save draft button.");
 
-             // --- COMPLEX PART - Needs Iframe Communication ---
-             // 1. Ask the current iframe for its data:
-             //    iframe.contentWindow.postMessage({ type: 'GET_SECTION_DATA' }, window.location.origin);
-             // 2. Listen for the response (see setupIframeListener below)
-             // 3. When response received, merge it into fullDraftData
-             // 4. Save fullDraftData to localStorage
-             // For now, just save whatever we might have (likely empty or outdated):
-             const draftKey = getDraftKey();
-             try {
-                 localStorage.setItem(draftKey, JSON.stringify(fullDraftData));
-                 if (saveStatus) { saveStatus.textContent = 'Draft container saved (iframe data missing).'; setTimeout(() => { saveStatus.textContent = ''; }, 3000); }
-             } catch (e) {
-                  console.error("Error saving draft container:", e);
-                  if (saveStatus) { saveStatus.textContent = 'Error saving!'; saveStatus.style.color = 'red'; }
-             }
-         });
-    }
-
-    /* // Example: listen for messages FROM iframe (Needs corresponding code in section_common.js)
-    function setupIframeListener() {
-        window.addEventListener('message', (event) => {
-            // IMPORTANT: Check origin for security
-            if (event.origin !== window.location.origin) {
-                console.warn("Message received from unexpected origin:", event.origin);
+        saveButton.addEventListener('click', () => {
+            if (currentUserId === 'anonymous') {
+                if (saveStatusElement) saveStatusElement.textContent = 'Please log in.';
                 return;
             }
+            console.log("Questionnaire.js - Save Draft button clicked. Requesting data from iframe...");
+            if (saveStatusElement) {
+                saveStatusElement.textContent = 'Requesting section data...';
+                saveStatusElement.style.color = 'orange';
+            }
 
-            const { type, payload, sectionName } = event.data;
-
-            if (type === 'SECTION_DATA_UPDATE' && sectionName) {
-                console.log(`Received data update from section: ${sectionName}`, payload);
-                // Merge payload into the correct part of fullDraftData
-                fullDraftData[sectionName] = payload;
-                // Maybe trigger an auto-save or indicate changes are ready to be saved
-                 if (saveStatus) saveStatus.textContent = 'Changes received, ready to save.';
-
-            } else if (type === 'SECTION_DATA_RESPONSE' && sectionName) {
-                 console.log(`Received data response from section: ${sectionName}`, payload);
-                 fullDraftData[sectionName] = payload;
-                 // Now save the full draft after getting response from save click
-                 const draftKey = getDraftKey();
-                 try {
-                     localStorage.setItem(draftKey, JSON.stringify(fullDraftData));
-                     if (saveStatus) { saveStatus.textContent = 'Draft saved successfully!'; setTimeout(() => { saveStatus.textContent = ''; }, 3000); }
-                 } catch (e) {
-                      console.error("Error saving full draft:", e);
-                      if (saveStatus) { saveStatus.textContent = 'Error saving!'; saveStatus.style.color = 'red'; }
-                 }
+            // Request data from the current iframe section
+            if (iframe.contentWindow) {
+                const sectionName = deriveSectionName(iframe.contentWindow.location.pathname);
+                iframe.contentWindow.postMessage({ type: 'GET_SECTION_DATA', sectionName: sectionName }, window.location.origin);
+            } else {
+                console.error("Questionnaire.js - Cannot access iframe contentWindow to request data.");
+                if (saveStatusElement) { saveStatusElement.textContent = 'Error accessing section.'; saveStatusElement.style.color = 'red';}
             }
         });
     }
-    */
 
-});
+    function setupMessageListenerFromIframe() {
+        console.log("Questionnaire.js - Setting up message listener for iframe communication.");
+        window.addEventListener('message', (event) => {
+            // IMPORTANT: Always verify the origin of the message for security
+            if (event.origin !== window.location.origin) {
+                // Allow messages from 'null' if iframe has no src initially or about:blank
+                if (event.origin !== 'null') {
+                    console.warn("Questionnaire.js - Message received from unexpected origin:", event.origin, "Expected:", window.location.origin);
+                    return;
+                }
+            }
+
+            const { type, payload, sectionName } = event.data;
+            console.log("Questionnaire.js - Message received from iframe:", event.data);
+
+            if (type === 'SECTION_DATA_RESPONSE' && sectionName) {
+                console.log(`Questionnaire.js - Received data response from section: ${sectionName}`, payload);
+                fullDraftData[sectionName] = payload; // Update the specific section's data
+
+                // Now save the entire draft
+                const draftKey = getDraftKey();
+                try {
+                    localStorage.setItem(draftKey, JSON.stringify(fullDraftData));
+                    console.log("Questionnaire.js - Full draft saved successfully to localStorage.", fullDraftData);
+                    if (saveStatusElement) {
+                        saveStatusElement.textContent = 'Draft saved successfully!';
+                        saveStatusElement.style.color = 'green';
+                        setTimeout(() => { if(saveStatusElement) saveStatusElement.textContent = ''; }, 3000);
+                    }
+                } catch (e) {
+                    console.error("Questionnaire.js - Error saving full draft:", e);
+                    if (saveStatusElement) {
+                        saveStatusElement.textContent = 'Error saving draft!';
+                        saveStatusElement.style.color = 'red';
+                    }
+                }
+            } else if (type === 'SECTION_READY') {
+                // Iframe section is ready, send it its draft data if available
+                console.log(`Questionnaire.js - Section "${sectionName}" is ready. Checking for draft data.`);
+                const sectionNameFromReady = deriveSectionName(sectionName); // sectionName here is pathname
+                if (sectionNameFromReady && fullDraftData[sectionNameFromReady]) {
+                    console.log(`Questionnaire.js - Sending draft data for section "${sectionNameFromReady}" to iframe.`);
+                    iframe.contentWindow.postMessage({
+                        type: 'LOAD_SECTION_DATA',
+                        payload: fullDraftData[sectionNameFromReady]
+                    }, window.location.origin);
+                }
+            } else if (type === 'SECTION_DATA_CHANGED_AUTOSAVE') {
+                // Received data from iframe due to input change (for autosave)
+                console.log(`Questionnaire.js - Auto-save data received from section: ${sectionName}`, payload);
+                fullDraftData[sectionName] = payload;
+                // Save the entire draft immediately (can be optimized later with debouncing)
+                const draftKey = getDraftKey();
+                try {
+                    localStorage.setItem(draftKey, JSON.stringify(fullDraftData));
+                    console.log("Questionnaire.js - Auto-saved full draft.", fullDraftData);
+                    if (saveStatusElement && !saveButton.disabled) { // Don't overwrite manual save message
+                         saveStatusElement.textContent = 'Changes auto-saved.';
+                         saveStatusElement.style.color = 'grey';
+                         setTimeout(() => { if(saveStatusElement && saveStatusElement.textContent === 'Changes auto-saved.') saveStatusElement.textContent = ''; }, 2000);
+                     }
+                } catch (e) {
+                    console.error("Questionnaire.js - Error auto-saving draft:", e);
+                }
+            }
+        });
+    }
+
+}); // End DOMContentLoaded
