@@ -1,27 +1,26 @@
-<!-- questionnaire.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Applicant Questionnaire - E&H Portal</title>
+    <title>Applicant Questionnaire - E&H Portal (Simplified Test)</title>
     <link rel="stylesheet" href="/css/style.css">
     <style>
-        /* Ensure container takes height */
-        .container { height: calc(100vh - 140px); /* Adjust based on header/footer height */ }
-        /* Iframe styling */
-        #section-iframe {
-            width: 100%;
-            height: 100%; /* Fill the form-container space */
-            border: none; /* Remove default border */
-        }
-        /* Ensure form-container doesn't add its own padding if iframe handles it */
+        /* Styles for loading/visibility */
+        #auth-loading { display: block; text-align: center; padding: 50px; font-size: 1.2em; color: #555; }
+        .container.is-loading { visibility: hidden; opacity: 0; }
+        .container.is-visible { visibility: visible; opacity: 1; transition: opacity 0.3s ease-in;}
+
+        /* Ensure container takes height even without iframe */
+        .container { min-height: calc(100vh - 160px); /* Adjust based on header/footer */ }
+        /* Adjust form container padding since there's no iframe */
         main.form-container {
-             padding: 0;
-             overflow: hidden; /* Hide potential scrollbars if iframe manages scrolling */
+             padding: 30px;
+             overflow: auto; /* Allow scroll if needed */
+             background-color: #eee; /* Temp background to see the area */
+             min-height: 300px; /* Temp min height */
         }
-        .hidden { display: none; }
-        #auth-status { padding: 30px; text-align: center; font-style: italic; }
+        .hidden { display: none !important; } /* Ensure hidden works */
 
     </style>
     <!-- Import Map -->
@@ -36,45 +35,49 @@
     </script>
 </head>
 <body>
-    <div id="auth-status">Checking authentication...</div>
+    <!-- Auth Status / Loading Indicator -->
+    <div id="auth-status">Initializing and checking authentication...</div>
 
-    <div id="page-content" class="hidden"> <!-- Hide until authenticated -->
+    <!-- This div will be shown by JavaScript after successful authentication -->
+    <div id="page-content" class="hidden">
         <header class="header">
-            <h1>Applicant's Questionnaire</h1>
-             <!-- Display user/logout in header? Optional -->
+            <h1>Applicant's Questionnaire (Simplified Test)</h1>
+             <!-- Display user/logout in header -->
              <div id="user-info" style="position: absolute; top: 15px; right: 20px; color: white; font-size: 0.9em;">
                  <span id="user-email"></span>
                  <button id="btn-logout" class="button logout-button" style="margin-left: 10px; padding: 5px 10px; font-size: 0.8em;">Log Out</button>
              </div>
-            <p>To be completed by the main applicant. Please fill all fields or enter 'NA' if not applicable.</p>
+            <p>This page should load if authentication check succeeds.</p>
         </header>
 
-        <div class="container"> <!-- This needs a defined height via CSS -->
+        <!-- Main container (initially hidden via JS or CSS if preferred) -->
+        <div class="container is-loading">
             <nav id="side-nav" class="side-nav">
-                <h3>Sections</h3>
-                <!-- Links now target the iframe -->
+                <h3>Sections (Navigation Disabled)</h3>
+                <!-- Keep the structure but links won't load iframe -->
                 <ul>
-                    <li><a href="/sections/section-applicant-details.html" target="section-iframe">Applicant Details</a></li>
-                    <li><a href="/sections/section-parents.html" target="section-iframe">Parent's Info</a></li>
-                    <li><a href="/sections/section-siblings.html" target="section-iframe">Sibling's Info</a></li>
-                    <li><a href="/sections/section-education.html" target="section-iframe">Education History</a></li>
-                    <li><a href="/sections/section-employment.html" target="section-iframe">Employment History</a></li>
-                    <li><a href="/sections/section-absence.html" target="section-iframe">Absence from SG</a></li>
-                    <li><a href="/sections/section-passports.html" target="section-iframe">Travel Documents</a></li>
-                    <li><a href="/sections/section-ns.html" target="section-iframe">National Service</a></li>
-                    <li><a href="/sections/section-prev-marriage.html" target="section-iframe">Previous Marriage</a></li>
-                    <li><a href="/sections/section-prev-children.html" target="section-iframe">Children (Previous Marriage)</a></li>
-                    <li><a href="/sections/section-review.html" target="section-iframe">Review & Submit</a></li> <!-- Review page might need special handling -->
+                    <li><a href="#section-applicant-details">Applicant Details</a></li>
+                    <li><a href="#section-parents">Parent's Info</a></li>
+                    <li><a href="#section-siblings">Sibling's Info</a></li>
+                    <li><a href="#section-education">Education History</a></li>
+                    <li><a href="#section-employment">Employment History</a></li>
+                    <li><a href="#section-absence">Absence from SG</a></li>
+                    <li><a href="#section-passports">Travel Documents</a></li>
+                    <li><a href="#section-ns">National Service</a></li>
+                    <li><a href="#section-prev-marriage">Previous Marriage</a></li>
+                    <li><a href="#section-prev-children">Children (Previous Marriage)</a></li>
+                    <li><a href="#section-review">Review & Submit</a></li>
                 </ul>
-                <!-- Save button on PARENT page - complex interaction needed -->
-                <button type="button" id="save-progress" class="button save-button" disabled>Save Draft</button>
+                <!-- Save button (will be disabled as iframe is gone) -->
+                <button type="button" id="save-progress" class="button save-button" disabled>Save Draft (Disabled)</button>
                 <p id="save-status" class="save-status"></p>
             </nav>
 
             <main id="form-container" class="form-container">
-                <!-- Iframe to load individual sections -->
-                <iframe name="section-iframe" id="section-iframe" src="/sections/section-applicant-details.html" title="Questionnaire Section"></iframe>
-                <!-- Initial src set to the first section -->
+                <!-- Iframe commented out -->
+                <!-- <iframe name="section-iframe" id="section-iframe" src="/sections/section-applicant-details.html" title="Questionnaire Section"></iframe> -->
+                <p style="padding: 20px; text-align: center; color: #666;"><i>Questionnaire sections would normally load here in an iframe.</i></p>
+                 <p style="padding: 20px; text-align: center;">If you see this page content, the authentication check succeeded without the 403 error.</p>
             </main>
         </div>
 
@@ -83,7 +86,7 @@
         </footer>
     </div>
 
-    <!-- Auth Check + Page Specific Script -->
-    <script type="module" src="/js/questionnaire.js"></script>
+    <!-- Auth Check + Simplified Page Specific Script -->
+    <script type="module" src="/js/questionnaire_simple_test.js"></script> <!-- Use a DIFFERENT script file for this test -->
 </body>
 </html>
