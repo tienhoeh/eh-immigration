@@ -1,0 +1,37 @@
+<!-- sections/section-employment.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Employment History</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style> body { padding: 20px; background-color: #fff; } </style>
+</head>
+<body>
+    <section id="section-employment" class="form-section">
+        <h2>Applicant's Full Employment History</h2>
+        <p>List all full-time employment since beginning of career.</p>
+        <div id="employment-container">
+            <fieldset class="repeatable-item fieldset-group" data-group="employment">
+                <legend>Employment Record 1</legend>
+                <button type="button" class="remove-item-button hidden">Remove Record</button>
+                <div class="form-grid">
+                    <!-- ALL fields for the first employment record -->
+                    <div class="form-group"> <label>Date Joined (MM/YYYY) *</label> <input type="month" name="employment[1][joined]" required data-initially-required="true"> </div>
+                    </div>
+            </fieldset>
+        </div>
+        <button type="button" id="add-employment" class="button add-button">Add Employment Record</button>
+    </section>
+    <template id="employment-template">
+        <fieldset class="repeatable-item fieldset-group" data-group="employment">
+            <legend>Employment Record #</legend>
+            <button type="button" class="remove-item-button">Remove Record</button>
+            <div class="form-grid">
+                <!-- ALL fields for a NEW employment record, using name="employment[#][...]" -->
+                <div class="form-group"> <label>Date Joined (MM/YYYY) *</label> <input type="month" name="employment[#][joined]" required data-initially-required="true"> </div>
+                </div>
+        </fieldset>
+    </template>
+    <script src="/js/section_common.js"></script>
+</body>
+</html>
