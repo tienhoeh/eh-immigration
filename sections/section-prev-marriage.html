@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Previous Marriage Information</title>
+    <link rel="stylesheet" href="/css/style.css"> <!-- Link to main stylesheet -->
+    <style>
+        body { padding: 20px; background-color: #fff; }
+        /* Specific grid layout for this section's fields */
+        #prev-marriage-container .form-grid {
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); /* Adjust column size */
+            gap: 15px 20px; /* Adjust gaps */
+        }
+         /* Ensure the custody question has enough space */
+         .form-group.custody-question label:first-child { /* Target the main label */
+             margin-bottom: 8px;
+         }
+         .form-group.custody-question label { /* Target radio labels */
+             font-weight: normal;
+             margin-bottom: 4px;
+         }
+    </style>
+</head>
+<body>
+    <section id="section-prev-marriage" class="form-section">
+        <h2>Main Applicant's Previous Marriage Information</h2>
+        <p>Applicable if you have been divorced or widowed.</p>
+
+        <!-- Checkbox to control visibility -->
+        <div class="form-group" style="margin-bottom: 25px;">
+            <label style="flex-direction: row; align-items: center;">
+                <input type="checkbox" id="prev-marriage-applicable" name="prev_marriage_applicable" value="yes" style="width: auto; height: auto; margin-right: 10px;">
+                I have been previously divorced or widowed
+            </label>
+        </div>
+
+        <!-- Container for the repeatable marriage records, hidden initially -->
+        <div id="prev-marriage-container" class="hidden">
+            <!-- Initial Previous Marriage Record -->
+            <fieldset class="repeatable-item fieldset-group" data-group="prev_marriage">
+                <legend>Previous Marriage Record 1</legend>
+                <button type="button" class="remove-item-button hidden">Remove Record</button>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="prev_marriage-1-spouse_name">Name of Former Spouse (as per passport) *</label>
+                        <input type="text" id="prev_marriage-1-spouse_name" name="prev_marriage[1][spouse_name]" placeholder="Enter name or NA" data-initially-required="true">
+                    </div>
+                    <div class="form-group">
+                        <label for="prev_marriage-1-spouse_nationality">Nationality of Former Spouse *</label>
+                        <input type="text" id="prev_marriage-1-spouse_nationality" name="prev_marriage[1][spouse_nationality]" placeholder="Enter nationality or NA" data-initially-required="true">
+                    </div>
+                    <div class="form-group">
+                        <label for="prev_marriage-1-spouse_dob">Date of Birth (DD/MM/YYYY) *</label>
+                        <input type="date" id="prev_marriage-1-spouse_dob" name="prev_marriage[1][spouse_dob]" data-initially-required="true">
+                    </div>
+                    <div class="form-group">
+                        <label for="prev_marriage-1-spouse_birthplace">State and Country of Birth *</label>
+                        <input type="text" id="prev_marriage-1-spouse_birthplace" name="prev_marriage[1][spouse_birthplace]" placeholder="Enter State, Country or NA" data-initially-required="true">
+                    </div>
+                    <div class="form-group">
+                        <label for="prev_marriage-1-spouse_whereabouts">Present whereabouts *</label>
+                        <input type="text" id="prev_marriage-1-spouse_whereabouts" name="prev_marriage[1][spouse_whereabouts]" placeholder="Enter location or NA" data-initially-required="true">
+                    </div>
+                     <div class="form-group">
+                        <label for="prev_marriage-1-divorce_date">Date of Divorce/Widowed *</label>
+                        <input type="date" id="prev_marriage-1-divorce_date" name="prev_marriage[1][divorce_date]" data-initially-required="true">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="prev_marriage-1-spouse_sg_status">Former Spouse's Current Immigration Status in Singapore *</label>
+                        <input type="text" id="prev_marriage-1-spouse_sg_status" name="prev_marriage[1][spouse_sg_status]" placeholder="Enter status or NA" data-initially-required="true">
+                    </div>
+                     <div class="form-group">
+                        <label for="prev_marriage-1-spouse_fin">Former Spouse's FIN/NRIC Number *</label>
+                        <input type="text" id="prev_marriage-1-spouse_fin" name="prev_marriage[1][spouse_fin]" placeholder="Enter FIN/NRIC or NA" data-initially-required="true">
+                    </div>
+                    <div class="form-group">
+                        <label for="prev_marriage-1-marriage_date">Date of Marriage *</label>
+                        <input type="date" id="prev_marriage-1-marriage_date" name="prev_marriage[1][marriage_date]" data-initially-required="true">
+                    </div>
+                    <div class="form-group">
+                        <label for="prev_marriage-1-cert_no">Marriage Certificate Number *</label>
+                        <input type="text" id="prev_marriage-1-cert_no" name="prev_marriage[1][cert_no]" placeholder="Enter number or NA" data-initially-required="true">
+                    </div>
+                     <div class="form-group">
+                        <label for="prev_marriage-1-marriage_place">State and Country of Marriage *</label>
+                        <input type="text" id="prev_marriage-1-marriage_place" name="prev_marriage[1][marriage_place]" placeholder="Enter State, Country or NA" data-initially-required="true">
+                    </div>
+                    <div class="form-group custody-question"> <!-- Custody Question -->
+                       <label>Does your ex-spouse have custody of the children? *</label>
+                        <label><input type="radio" name="prev_marriage[1][custody]" value="Yes" data-initially-required="true"> Yes</label>
+                        <label><input type="radio" name="prev_marriage[1][custody]" value="No"> No</label>
+                        <label><input type="radio" name="prev_marriage[1][custody]" value="Joint"> Joint</label>
+                        <label><input type="radio" name="prev_marriage[1][custody]" value="NA"> NA / Not Applicable</label>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+        <!-- Button to add more records -->
+        <button type="button" id="add-prev-marriage" class="button add-button hidden">Add Previous Marriage Record</button>
+    </section>
+
+    <!-- Template for adding more Previous Marriage records -->
+    <template id="prev-marriage-template">
+       <fieldset class="repeatable-item fieldset-group" data-group="prev_marriage">
+           <legend>Previous Marriage Record #</legend>
+           <button type="button" class="remove-item-button">Remove Record</button>
+            <div class="form-grid">
+                 <div class="form-group"> <label for="prev_marriage-#-spouse_name">Name of Former Spouse (as per passport) *</label> <input type="text" id="prev_marriage-#-spouse_name" name="prev_marriage[#][spouse_name]" placeholder="Enter name or NA" data-initially-required="true" required> </div>
+                 <div class="form-group"> <label for="prev_marriage-#-spouse_nationality">Nationality of Former Spouse *</label> <input type="text" id="prev_marriage-#-spouse_nationality" name="prev_marriage[#][spouse_nationality]" placeholder="Enter nationality or NA" data-initially-required="true" required> </div>
+                 <div class="form-group"> <label for="prev_marriage-#-spouse_dob">Date of Birth (DD/MM/YYYY) *</label> <input type="date" id="prev_marriage-#-spouse_dob" name="prev_marriage[#][spouse_dob]" data-initially-required="true" required> </div>
+                 <div class="form-group"> <label for="prev_marriage-#-spouse_birthplace">State and Country of Birth *</label> <input type="text" id="prev_marriage-#-spouse_birthplace" name="prev_marriage[#][spouse_birthplace]" placeholder="Enter State, Country or NA" data-initially-required="true" required> </div>
+                 <div class="form-group"> <label for="prev_marriage-#-spouse_whereabouts">Present whereabouts *</label> <input type="text" id="prev_marriage-#-spouse_whereabouts" name="prev_marriage[#][spouse_whereabouts]" placeholder="Enter location or NA" data-initially-required="true" required> </div>
+                 <div class="form-group"> <label for="prev_marriage-#-divorce_date">Date of Divorce/Widowed *</label> <input type="date" id="prev_marriage-#-divorce_date" name="prev_marriage[#][divorce_date]" data-initially-required="true" required> </div>
+                 <div class="form-group"> <label for="prev_marriage-#-spouse_sg_status">Former Spouse's Current Immigration Status in Singapore *</label> <input type="text" id="prev_marriage-#-spouse_sg_status" name="prev_marriage[#][spouse_sg_status]" placeholder="Enter status or NA" data-initially-required="true" required> </div>
+                 <div class="form-group"> <label for="prev_marriage-#-spouse_fin">Former Spouse's FIN/NRIC Number *</label> <input type="text" id="prev_marriage-#-spouse_fin" name="prev_marriage[#][spouse_fin]" placeholder="Enter FIN/NRIC or NA" data-initially-required="true" required> </div>
+                 <div class="form-group"> <label for="prev_marriage-#-marriage_date">Date of Marriage *</label> <input type="date" id="prev_marriage-#-marriage_date" name="prev_marriage[#][marriage_date]" data-initially-required="true" required> </div>
+                 <div class="form-group"> <label for="prev_marriage-#-cert_no">Marriage Certificate Number *</label> <input type="text" id="prev_marriage-#-cert_no" name="prev_marriage[#][cert_no]" placeholder="Enter number or NA" data-initially-required="true" required> </div>
+                 <div class="form-group"> <label for="prev_marriage-#-marriage_place">State and Country of Marriage *</label> <input type="text" id="prev_marriage-#-marriage_place" name="prev_marriage[#][marriage_place]" placeholder="Enter State, Country or NA" data-initially-required="true" required> </div>
+                 <div class="form-group custody-question"> <label>Does your ex-spouse have custody of the children? *</label> <label><input type="radio" name="prev_marriage[#][custody]" value="Yes" data-initially-required="true" required> Yes</label> <label><input type="radio" name="prev_marriage[#][custody]" value="No"> No</label> <label><input type="radio" name="prev_marriage[#][custody]" value="Joint"> Joint</label> <label><input type="radio" name="prev_marriage[#][custody]" value="NA"> NA / Not Applicable</label> </div>
+            </div>
+        </fieldset>
+    </template>
+
+    <script src="/js/section_common.js"></script>
+</body>
+</html>
