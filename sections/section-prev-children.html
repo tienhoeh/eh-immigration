@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Children from Previous Marriages</title>
+    <link rel="stylesheet" href="/css/style.css"> <!-- Link to main stylesheet -->
+    <style>
+        body { padding: 20px; background-color: #fff; }
+        /* Adjust grid for better layout if needed */
+        #prev-children-container .form-grid {
+            grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); /* Adjust min width */
+            gap: 15px 20px;
+        }
+        /* Ensure nested conditional section aligns well */
+         .form-group.full-width.nested-conditional {
+             padding: 15px;
+             margin-top: 10px;
+             background-color: #f8f9fa; /* Light background for distinction */
+             border: 1px solid #eee;
+             border-radius: 4px;
+         }
+         .form-group.full-width.nested-conditional label {
+             margin-bottom: 8px;
+             display: block; /* Ensure labels stack */
+         }
+         .form-group.full-width.nested-conditional input {
+             margin-bottom: 10px; /* Space between inputs */
+         }
+    </style>
+</head>
+<body>
+    <!-- This entire section might be conditionally shown by parent based on prev marriage checkbox -->
+    <section id="section-prev-children" class="form-section">
+         <h2>Main Applicant's Children from Previous Marriages</h2>
+         <div id="prev-children-container">
+             <!-- Initial Child Item -->
+             <fieldset class="repeatable-item fieldset-group" data-group="prev_child">
+                <legend>Child 1 (from Previous Marriage)</legend>
+                <button type="button" class="remove-item-button hidden">Remove Child</button>
+                 <div class="form-grid">
+                    <div class="form-group"> <label for="prev_child-1-name">Full Name (as per passport) *</label> <input type="text" id="prev_child-1-name" name="prev_child[1][name]" placeholder="Enter name or NA" data-initially-required="true" required> </div>
+                    <div class="form-group"> <label for="prev_child-1-nationality">Nationality *</label> <input type="text" id="prev_child-1-nationality" name="prev_child[1][nationality]" placeholder="Enter nationality or NA" data-initially-required="true" required> </div>
+                    <div class="form-group"> <label for="prev_child-1-race">Race & Religion *</label> <input type="text" id="prev_child-1-race" name="prev_child[1][race]" placeholder="Enter race/religion or NA" data-initially-required="true" required> </div>
+
+                    <div class="form-group"> <label for="prev_child-1-dob">Date of Birth *</label> <input type="date" id="prev_child-1-dob" name="prev_child[1][dob]" data-initially-required="true" required> </div>
+                    <div class="form-group"> <label for="prev_child-1-birthplace">State & Country of Birth *</label> <input type="text" id="prev_child-1-birthplace" name="prev_child[1][birthplace]" placeholder="Enter State, Country or NA" data-initially-required="true" required> </div>
+                    <div class="form-group"> <label for="prev_child-1-birthcert">Birth Cert No *</label> <input type="text" id="prev_child-1-birthcert" name="prev_child[1][birthcert]" placeholder="Enter number or NA" data-initially-required="true" required> </div>
+
+                    <div class="form-group full-width"> <label for="prev_child-1-whereabouts">Present whereabouts *</label> <input type="text" id="prev_child-1-whereabouts" name="prev_child[1][whereabouts]" placeholder="Enter location or NA" data-initially-required="true" required> </div>
+                    <div class="form-group"> <label for="prev_child-1-other-parent">Name of other parent *</label> <input type="text" id="prev_child-1-other-parent" name="prev_child[1][other_parent]" placeholder="Enter name or NA" data-initially-required="true" required> </div>
+
+                    <div class="form-group"> <label for="prev_child-1-passport_no">Passport No *</label> <input type="text" id="prev_child-1-passport_no" name="prev_child[1][passport_no]" placeholder="Number or NA" data-initially-required="true" required></div>
+                    <div class="form-group"> <label for="prev_child-1-passport_issue">Passport Issue Date *</label> <input type="date" id="prev_child-1-passport_issue" name="prev_child[1][passport_issue]" data-initially-required="true" required></div>
+                    <div class="form-group"> <label for="prev_child-1-passport_expiry">Passport Expiry Date *</label> <input type="date" id="prev_child-1-passport_expiry" name="prev_child[1][passport_expiry]" data-initially-required="true" required></div>
+                    <div class="form-group"> <label for="prev_child-1-passport_issuance">Passport Country and place of Issuance *</label> <input type="text" id="prev_child-1-passport_issuance" name="prev_child[1][passport_issuance]" placeholder="Country, Place or NA" data-initially-required="true" required></div>
+
+                    <div class="form-group"> <label for="prev_child-1-education_level">Highest education level *</label> <input type="text" id="prev_child-1-education_level" name="prev_child[1][education_level]" placeholder="Level or NA" data-initially-required="true" required></div>
+                    <div class="form-group"> <label for="prev_child-1-institute_name">Institute Name *</label> <input type="text" id="prev_child-1-institute_name" name="prev_child[1][institute_name]" placeholder="Name or NA" data-initially-required="true" required></div>
+                    <div class="form-group"> <label for="prev_child-1-edu_start_date">Start date (DD/MM/YYYY) *</label> <input type="date" id="prev_child-1-edu_start_date" name="prev_child[1][edu_start_date]" data-initially-required="true" required></div>
+                    <div class="form-group"> <label for="prev_child-1-edu_end_date">End date (DD/MM/YYYY) *</label> <input type="date" id="prev_child-1-edu_end_date" name="prev_child[1][edu_end_date]" data-initially-required="true" required></div>
+                    <div class="form-group"> <label for="prev_child-1-edu_time_status">Full Time/Part Time *</label> <select id="prev_child-1-edu_time_status" name="prev_child[1][edu_time_status]" data-initially-required="true" required><option value="">Select</option><option value="Full Time">Full Time</option><option value="Part Time">Part Time</option><option value="NA">NA</option></select></div>
+
+                    <div class="form-group"> <label for="prev_child-1-sg_status">Current Immigration Status in Singapore *</label> <input type="text" id="prev_child-1-sg_status" name="prev_child[1][sg_status]" placeholder="Enter status or NA" data-initially-required="true" required> </div>
+                    <div class="form-group"> <label for="prev_child-1-fin">FIN/NRIC Number *</label> <input type="text" id="prev_child-1-fin" name="prev_child[1][fin]" placeholder="Enter FIN/NRIC or NA" data-initially-required="true" required> </div>
+                    <div class="form-group"> <label for="prev_child-1-marital_status">Marital Status *</label> <select id="prev_child-1-marital_status" name="prev_child[1][marital_status]" data-initially-required="true" required><option value="">Select</option><option value="Single">Single</option><option value="Married">Married</option><option value="Divorced">Divorced</option><option value="Widowed">Widowed</option><option value="NA">NA / Minor</option></select></div>
+                    <div class="form-group">
+                         <label>Is your child currently employed? *</label>
+                         <label style="flex-direction: row;"><input type="radio" name="prev_child[1][employed]" value="Yes" data-initially-required="true" required> Yes</label>
+                         <label style="flex-direction: row;"><input type="radio" name="prev_child[1][employed]" value="No"> No</label>
+                         <label style="flex-direction: row;"><input type="radio" name="prev_child[1][employed]" value="NA"> NA</label>
+                    </div>
+
+                    <!-- Conditionally Shown Employment Details -->
+                    <div class="form-group full-width hidden nested-conditional" data-condition='prev_child[#][employed]=="Yes"'>
+                         <label for="prev_child-1-occupation_salary">Occupation Title & Monthly Gross Salary *</label>
+                         <input type="text" id="prev_child-1-occupation_salary" name="prev_child[1][occupation_salary]" placeholder="Title & Salary or NA" data-initially-required="false"> <!-- Required toggled by JS -->
+                         <label for="prev_child-1-company_name">Company Name *</label>
+                         <input type="text" id="prev_child-1-company_name" name="prev_child[1][company_name]" placeholder="Company Name or NA" data-initially-required="false"> <!-- Required toggled by JS -->
+                         <label for="prev_child-1-emp_start_date">Employment Start Date *</label>
+                         <input type="date" id="prev_child-1-emp_start_date" name="prev_child[1][emp_start_date]" data-initially-required="false"> <!-- Required toggled by JS -->
+                    </div>
+                 </div>
+             </fieldset>
+         </div>
+         <button type="button" id="add-prev-child" class="button add-button">Add Child from Previous Marriage</button>
+    </section>
+
+    <!-- Template for adding more children -->
+    <template id="prev-child-template">
+          <fieldset class="repeatable-item fieldset-group" data-group="prev_child">
+            <legend>Child # (from Previous Marriage)</legend>
+            <button type="button" class="remove-item-button">Remove Child</button>
+             <div class="form-grid">
+                 <!-- Copy ALL fields from above fieldset, replacing [1] with [#] in names and using # in IDs -->
+                 <div class="form-group"> <label for="prev_child-#-name">Full Name (as per passport) *</label> <input type="text" id="prev_child-#-name" name="prev_child[#][name]" placeholder="Enter name or NA" data-initially-required="true" required> </div>
+                 <div class="form-group"> <label for="prev_child-#-nationality">Nationality *</label> <input type="text" id="prev_child-#-nationality" name="prev_child[#][nationality]" placeholder="Enter nationality or NA" data-initially-required="true" required> </div>
+                 <div class="form-group"> <label for="prev_child-#-race">Race & Religion *</label> <input type="text" id="prev_child-#-race" name="prev_child[#][race]" placeholder="Enter race/religion or NA" data-initially-required="true" required> </div>
+                 <div class="form-group"> <label for="prev_child-#-dob">Date of Birth *</label> <input type="date" id="prev_child-#-dob" name="prev_child[#][dob]" data-initially-required="true" required> </div>
+                 <div class="form-group"> <label for="prev_child-#-birthplace">State & Country of Birth *</label> <input type="text" id="prev_child-#-birthplace" name="prev_child[#][birthplace]" placeholder="Enter State, Country or NA" data-initially-required="true" required> </div>
+                 <div class="form-group"> <label for="prev_child-#-birthcert">Birth Cert No *</label> <input type="text" id="prev_child-#-birthcert" name="prev_child[#][birthcert]" placeholder="Enter number or NA" data-initially-required="true" required> </div>
+                 <div class="form-group full-width"> <label for="prev_child-#-whereabouts">Present whereabouts *</label> <input type="text" id="prev_child-#-whereabouts" name="prev_child[#][whereabouts]" placeholder="Enter location or NA" data-initially-required="true" required> </div>
+                 <div class="form-group"> <label for="prev_child-#-other-parent">Name of other parent *</label> <input type="text" id="prev_child-#-other-parent" name="prev_child[#][other_parent]" placeholder="Enter name or NA" data-initially-required="true" required> </div>
+                 <div class="form-group"> <label for="prev_child-#-passport_no">Passport No *</label> <input type="text" id="prev_child-#-passport_no" name="prev_child[#][passport_no]" placeholder="Number or NA" data-initially-required="true" required></div>
+                 <div class="form-group"> <label for="prev_child-#-passport_issue">Passport Issue Date *</label> <input type="date" id="prev_child-#-passport_issue" name="prev_child[#][passport_issue]" data-initially-required="true" required></div>
+                 <div class="form-group"> <label for="prev_child-#-passport_expiry">Passport Expiry Date *</label> <input type="date" id="prev_child-#-passport_expiry" name="prev_child[#][passport_expiry]" data-initially-required="true" required></div>
+                 <div class="form-group"> <label for="prev_child-#-passport_issuance">Passport Country and place of Issuance *</label> <input type="text" id="prev_child-#-passport_issuance" name="prev_child[#][passport_issuance]" placeholder="Country, Place or NA" data-initially-required="true" required></div>
+                 <div class="form-group"> <label for="prev_child-#-education_level">Highest education level *</label> <input type="text" id="prev_child-#-education_level" name="prev_child[#][education_level]" placeholder="Level or NA" data-initially-required="true" required></div>
+                 <div class="form-group"> <label for="prev_child-#-institute_name">Institute Name *</label> <input type="text" id="prev_child-#-institute_name" name="prev_child[#][institute_name]" placeholder="Name or NA" data-initially-required="true" required></div>
+                 <div class="form-group"> <label for="prev_child-#-edu_start_date">Start date (DD/MM/YYYY) *</label> <input type="date" id="prev_child-#-edu_start_date" name="prev_child[#][edu_start_date]" data-initially-required="true" required></div>
+                 <div class="form-group"> <label for="prev_child-#-edu_end_date">End date (DD/MM/YYYY) *</label> <input type="date" id="prev_child-#-edu_end_date" name="prev_child[#][edu_end_date]" data-initially-required="true" required></div>
+                 <div class="form-group"> <label for="prev_child-#-edu_time_status">Full Time/Part Time *</label> <select id="prev_child-#-edu_time_status" name="prev_child[#][edu_time_status]" data-initially-required="true" required><option value="">Select</option><option value="Full Time">Full Time</option><option value="Part Time">Part Time</option><option value="NA">NA</option></select></div>
+                 <div class="form-group"> <label for="prev_child-#-sg_status">Current Immigration Status in Singapore *</label> <input type="text" id="prev_child-#-sg_status" name="prev_child[#][sg_status]" placeholder="Enter status or NA" data-initially-required="true" required> </div>
+                 <div class="form-group"> <label for="prev_child-#-fin">FIN/NRIC Number *</label> <input type="text" id="prev_child-#-fin" name="prev_child[#][fin]" placeholder="Enter FIN/NRIC or NA" data-initially-required="true" required> </div>
+                 <div class="form-group"> <label for="prev_child-#-marital_status">Marital Status *</label> <select id="prev_child-#-marital_status" name="prev_child[#][marital_status]" data-initially-required="true" required><option value="">Select</option><option value="Single">Single</option><option value="Married">Married</option><option value="Divorced">Divorced</option><option value="Widowed">Widowed</option><option value="NA">NA / Minor</option></select></div>
+                 <div class="form-group"> <label>Is your child currently employed? *</label> <label style="flex-direction: row;"><input type="radio" name="prev_child[#][employed]" value="Yes" data-initially-required="true" required> Yes</label> <label style="flex-direction: row;"><input type="radio" name="prev_child[#][employed]" value="No"> No</label> <label style="flex-direction: row;"><input type="radio" name="prev_child[#][employed]" value="NA"> NA</label> </div>
+                 <div class="form-group full-width hidden nested-conditional" data-condition='prev_child[#][employed]=="Yes"'>
+                     <label for="prev_child-#-occupation_salary">Occupation Title & Monthly Gross Salary *</label> <input type="text" id="prev_child-#-occupation_salary" name="prev_child[#][occupation_salary]" placeholder="Title & Salary or NA" data-initially-required="false">
+                     <label for="prev_child-#-company_name">Company Name *</label> <input type="text" id="prev_child-#-company_name" name="prev_child[#][company_name]" placeholder="Company Name or NA" data-initially-required="false">
+                     <label for="prev_child-#-emp_start_date">Employment Start Date *</label> <input type="date" id="prev_child-#-emp_start_date" name="prev_child[#][emp_start_date]" data-initially-required="false">
+                 </div>
+             </div>
+         </fieldset>
+    </template>
+
+    <script src="/js/section_common.js"></script>
+</body>
+</html>
