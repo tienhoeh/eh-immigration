@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Review & Submit Questionnaire</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        body { padding: 20px; background-color: #fff; }
+        #review-content { margin-bottom: 30px; }
+        #review-content h3 {
+            margin-top: 25px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 8px;
+            font-size: 1.2em;
+            color: #337ab7;
+        }
+        #review-content dl { /* Definition List for displaying data */
+            margin-bottom: 15px;
+            line-height: 1.7;
+        }
+        #review-content dt { /* Term (Label) */
+            font-weight: bold;
+            color: #555;
+            width: 30%; /* Adjust width as needed */
+            float: left;
+            clear: left;
+            padding-right: 10px;
+            margin-bottom: 5px;
+        }
+        #review-content dd { /* Definition (Value) */
+            margin-left: 32%; /* Adjust to align with dt width + padding */
+            margin-bottom: 5px;
+            word-wrap: break-word; /* Prevent long text overflow */
+        }
+        /* Clear floats for subsequent elements */
+        #review-content dl::after {
+            content: "";
+            display: table;
+            clear: both;
+        }
+        #review-content .section-separator {
+            border-top: 2px dashed #ccc;
+            margin: 30px 0;
+        }
+        #review-content .repeatable-item-review {
+            border: 1px solid #e0e0e0;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+         #review-content .repeatable-item-review legend {
+             font-weight: bold;
+             font-size: 1.1em;
+             margin-bottom: 10px;
+             color: #444;
+         }
+
+        /* Loading/Error States */
+        #loading-review { color: orange; font-style: italic; }
+        #error-review { color: red; font-weight: bold; }
+
+    </style>
+</head>
+<body>
+    <section id="section-review" class="form-section">
+        <h2>Review & Submit</h2>
+        <p>Please carefully review all the information you have provided below. If anything is incorrect, please navigate back to the relevant section using the left panel to make corrections before submitting.</p>
+
+        <div id="review-content">
+            <p id="loading-review">Loading consolidated information...</p>
+            <p id="error-review" class="hidden"></p>
+            <!-- Data will be dynamically inserted here by JavaScript -->
+        </div>
+
+        <hr>
+
+        <div class="form-group" style="margin-top: 30px;">
+            <label>
+                <input type="checkbox" id="final-declaration" name="final_declaration" value="agreed" required>
+                * I have reviewed the information above and declare that it is true and correct to the best of my knowledge.
+            </label>
+        </div>
+
+        <!-- The submit button here needs different handling than Netlify forms -->
+        <button type="button" id="final-submit-button" class="button submit-button" disabled>Submit Application</button>
+        <p id="submit-status" class="save-status" style="margin-top: 15px;"></p>
+
+    </section>
+
+    <!-- Script for this section (might need dedicated review.js later) -->
+    <script src="/js/section_common.js"></script>
+    <!-- OR maybe a dedicated script: <script type="module" src="/js/review.js"></script> -->
+
+</body>
+</html>
